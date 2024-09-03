@@ -11,7 +11,7 @@ BookHaven is a modern web app for book lovers to buy, sell, and explore books.
 
 ## Technologies
 
-- **Frontend**: React, Vite, Tailwind CSS, Flowbite, NextUI
+- **Frontend**: React, Vite, Tailwind CSS, Flowbite
 - **Backend**: Express, MongoDB
 - **Auth**: Firebase
 - **Icons**: React Icons
