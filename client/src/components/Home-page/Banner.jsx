@@ -85,45 +85,43 @@ const Banner = () => {
               Search
             </button>
           </div>
-          {showResults && selectedBook && (
-            <div className="mt-8 flex flex-col">
-              <Card className="w-96 h-64 flex flex-row" key={selectedBook._id}>
-                <Link
-                  to={`/book/${selectedBook._id}`}
-                  className="flex flex-row w-full h-full"
-                >
-                  <div className="flex items-center justify-center w-2/5 h-full">
-                    <img
-                      src={selectedBook.imageURL}
-                      alt={selectedBook.bookTitle}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col  w-3/5 h-full px-4 py-1 overflow-hidden">
-                    <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
-                      {selectedBook.bookTitle}
-                    </h5>
-                    <p className="flex flex-col text-md font-normal text-gray-800 dark:text-gray-400 mt-1">
-                      By {selectedBook.authorName}
-                      <span className="text-gray-600 mt-1">
-                        {selectedBook.category}
-                      </span>
-                    </p>
-                    <div className="flex flex-col h-full justify-between">
-                      <div className="flex-grow mt-2 text-gray-600 overflow-hidden">
-                        <p className="line-clamp-5 text-sm">
-                          {selectedBook.description}
+
+          {/* Search results */}
+          {showResults && books.length > 0 && (
+            <div className="mt-8 flex flex-col space-y-4">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Search Results
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {books.map((book) => (
+                  <Card className="w-full max-w-[180px]" key={book._id}>
+                    <Link
+                      to={`/book/${book._id}`}
+                      className="flex flex-col h-full"
+                    >
+                      <img
+                        src={book.imageURL}
+                        alt={book.bookTitle}
+                        className="w-full h-[240px] object-contain"
+                      />
+                      <div className="flex flex-col p-3 flex-grow">
+                        <h5 className="text-sm font-bold text-gray-900 line-clamp-2">
+                          {book.bookTitle}
+                        </h5>
+                        <p className="text-xs text-gray-600 line-clamp-1">
+                          By {book.authorName}
                         </p>
+                        <div className="mt-auto pt-2">
+                          <span className="text-sm font-semibold text-blue-600">
+                            ${book.price}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-semibold text-blue-600">
-                          ${selectedBook.price}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </Card>
+                    </Link>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
         </div>
