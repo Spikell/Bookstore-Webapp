@@ -1,19 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useParams, useLocation, useLoaderData } from "react-router-dom";
 import { Textarea } from "flowbite-react";
 import { bookCategories } from "../data";
 import Select from "react-select";
+import "./UploadBook.css"; 
+
 const EditBook = () => {
   const { id } = useParams();
   const { bookTitle, authorName, imageURL, category, bookPdfURL, description, price } =
     useLoaderData();
 
-
   const [selectedCategory, setSelectedCategory] = useState(category);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
+    setShowDropdown(true);
   };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category.label);
+    setShowDropdown(false);
+  };
+
+  const filteredCategories = useMemo(() => {
+    if (!selectedCategory) return bookCategories;
+    return bookCategories.filter((category) =>
+      category.label.toLowerCase().includes(selectedCategory.toLowerCase())
+    );
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // handle form submission
   const handleBookEdit = (event) => {
@@ -127,28 +156,37 @@ const EditBook = () => {
             </div>
 
             {/* Category*/}
-            <div className="flex flex-col lg:w-[600px]">
+            <div className="flex flex-col lg:w-[600px] relative" ref={dropdownRef}>
               <label
                 htmlFor="category"
                 className="mb-2 block text-md font-semibold text-gray-700"
               >
                 Category
               </label>
-              <select
+              <input
+                type="text"
                 id="category"
                 name="category"
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                defaultValue={category}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Enter or select a category"
                 required
                 className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
-              >
-                {bookCategories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+              />
+              {showDropdown && (
+                <ul className="modern-scrollbar absolute z-10 w-9/12 top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                  {filteredCategories.map((category) => (
+                    <li
+                      key={category.value}
+                      onClick={() => handleCategorySelect(category)}
+                      className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
+                    >
+                      {category.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
@@ -186,6 +224,8 @@ const EditBook = () => {
               name="price"
               placeholder="Enter price"
               defaultValue={price}
+              step="0.01"
+              min="0"
               required
               className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-5000"
             />
