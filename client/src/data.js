@@ -1,7 +1,7 @@
 export const bookCategories = [
     { label: "Fiction", value: "fiction" },
     { label: "Non-Fiction", value: "non-fiction" },
-    { label: "Children's", value: "childrens" },
+    { label: "Childrens", value: "childrens" },
     { label: "Young Adult", value: "young-adult" },
     { label: "Adult", value: "adult" },
     { label: "Romance", value: "romance" },
@@ -47,7 +47,6 @@ export const bookCategories = [
     { label: "Thriller", value: "thriller" },
     { label: "Poetry", value: "poetry" },
     { label: "Drama", value: "drama" },
-    { label: "Classics", value: "classics" },
     { label: "Graphic Novel", value: "graphic-novel" },
     { label: "Manga", value: "manga" },
     { label: "Autobiography", value: "autobiography" },
@@ -82,5 +81,5 @@ export const bookCategories = [
     { label: "Linguistics", value: "linguistics" },
     { label: "Foreign Language", value: "foreign-language" },
     { label: "Dystopia", value: "dystopia" },
-    { label: "Classic", value: "classic" }
+    { label: "Classics", value: "classics" }
 ];
