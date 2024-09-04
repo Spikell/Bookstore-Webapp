@@ -14,6 +14,6 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [require('flowbite/plugin'), nextui()],
+  plugins: [require('flowbite/plugin'), nextui(),('tailwind-scrollbar')],
 }
 
