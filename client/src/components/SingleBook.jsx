@@ -43,14 +43,14 @@ const SingleBook = () => {
             `}</style>
             <div className="flex items-end justify-end">
               {/* <p className="text-gray-600 mb-2">{price}</p> */}
-              <a
-                href={bookPDFURL}
+              <button
+                onClick={() => window.open(bookPDFURL, "_blank")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200 hover:shadow-lg"
               >
                 Buy Now
-              </a>
+              </button>
             </div>
           </div>
         </div>

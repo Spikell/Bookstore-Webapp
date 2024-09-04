@@ -13,8 +13,7 @@ const FavBook = () => {
           Find your favorite <span className="text-blue-700">books here</span>
         </h2>
         <p className="mb-10 text-lg md:w-5/6">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quos.
+          Discover a wide range of books from various genres and authors. Whether you're looking for the latest bestsellers or timeless classics, we have something for every book lover.
         </p>
         {/* Flexbox for the stats */}
         <div className="flex flex-col md:flex-row justify-between gap-6 md:w-3/4 my-14">

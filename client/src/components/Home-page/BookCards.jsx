@@ -41,7 +41,7 @@ const BookCards = ({ headline, books }) => {
               <Link to={`/book/${book._id}`}>
                 <div className="relative bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden">
                   <img src={book.imageURL} alt="" className="w-full h-90 object-cover" /> {/* Increased height to 80 */}
-                  <div className="absolute top-3 right-3 bg-blue-600 hover:bg-black p-2 rounded-lg">
+                  <div className="absolute top-3 right-3 bg-blue-700 hover:bg-blue-800 p-2 rounded-lg">
                     <FaShoppingCart className="text-white w-4 h-4" />
                   </div>
                   <div className="p-4">
