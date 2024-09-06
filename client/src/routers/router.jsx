@@ -1,9 +1,8 @@
-import App from "../App";
+import App from '../App';
 import Home from "../pages/Home";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Shop from "../pages/Shop";
 import About from "../components/About";
-import Blog from "../components/Blog";
 import SingleBook from "../components/SingleBook";
 import DashboardLayout from "../Dashboard/DashboardLayout";
 import Dashboard from "../Dashboard/Dashboard";
@@ -14,6 +13,7 @@ import SignUp from "../components/SignUp";
 import PrivateRoute from "../Private Route/PrivateRoute";
 import Login from "../components/Login";
 import Logout from "../Logout";
+import Cart from "../pages/Cart";
 
 
 
@@ -35,8 +35,8 @@ const router = createBrowserRouter([
         element: <About />,
       },      
       {
-        path: "/blog",
-        element: <Blog />,
+        path: "/cart",
+        element: <Cart />,
       },
       {
         path: "/book/:id",
