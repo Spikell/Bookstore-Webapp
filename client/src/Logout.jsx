@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { AuthContext } from "./Firebase/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { toast } from 'react-hot-toast'; // Add this import
 
 const Logout = () => {
 
@@ -11,14 +11,14 @@ const Logout = () => {
 
   const from = location.state?.from?.pathname || "/";
 
-
   const handleLogout = () => {
     logout().then(() => {
       console.log("Logged out");
-      alert("Logged out successfully");
+      toast.success("Logged out successfully", { duration: 2000 }); // Increase duration
       navigate(from, { replace: true });
     }).catch((error) => {
       console.error("Error logging out:", error);
+      toast.error("Error logging out", { duration: 2000 }); // Increase duration
     });
   };
 
