@@ -1,10 +1,11 @@
 import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Firebase/AuthProvider";
+import { toast } from 'react-hot-toast'; // Add this import
 
 const Login = () => {
-  const { createUser, loginWithGoogle } = useContext(AuthContext);
-  const { error, setError } = useState("error");
+  const { login, loginWithGoogle } = useContext(AuthContext);
+  const [error, setError] = useState("");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,35 +18,41 @@ const Login = () => {
     const email = form.email.value;
     const password = form.password.value;
 
+    toast.dismiss(); // Dismiss any existing toasts
     login(email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        alert("Logged in successfully!");
-        navigate(from, { replace: true });
+        toast.success("Logged in successfully!", { duration: 3000 });
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 1000); // Delay navigation by 1 second
       })
       .catch((error) => {
         setError(error.message);
         if (error.code === "auth/user-not-found") {
-          alert("No account found with this email. Please sign up first.");
+          toast.error("No account found with this email. Please sign up first.", { duration: 3000 });
         } else {
-          alert("Login failed. Please check your credentials and try again.");
+          toast.error("Login failed. Please check your credentials and try again.", { duration: 3000 });
         }
       });
   };
 
   // signup using google
   const handleLoginWithGoogle = () => {
+    toast.dismiss(); // Dismiss any existing toasts
     loginWithGoogle()
       .then((result) => {
         const user = result.user;
-        navigate(from, { replace: true });
-        alert("Logged in successfully!");
-        console.log(user);
+        toast.success("Logged in successfully!", { duration: 3000 });
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 1000); // Delay navigation by 1 second
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         setError(errorMessage);
+        toast.error("Login failed. Please try again.", { duration: 3000 });
       });
   };
 
