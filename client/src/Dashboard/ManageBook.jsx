@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FaRegEdit } from "react-icons/fa";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
-// import { Table } from "flowbite-react";
+import toast, { Toaster } from 'react-hot-toast'; // Add this import
 
 // import {
 //   Table,
@@ -30,80 +29,54 @@ const ManageBook = () => {
       .then((data) => {
         console.log(data);
         if (data.deletedCount > 0) {
-          alert("Book deleted successfully");
+          toast.success('Book deleted successfully', { // Add this toast
+            position: 'bottom-center',
+          });
           setAllBooks(allBooks.filter((book) => book._id !== id));
         }
       });
   };
 
   return (
-    <div className="px-4 my-8">
-      <h1 className="text-2xl font-bold mb-8">Manage your Books</h1>
-      {/* Table for book data */}
-      <table class="w-full text-md text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
-        <thead class=" text-gray-700 uppercase bg-gray-300 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-12 py-2 normal-case">
-              No.
-            </th>
-            <th scope="col" className="px-12 py-2 ">
-              Book Title
-            </th>
-            <th scope="col" className="px-12 py-2">
-              Author Name
-            </th>
-            <th scope="col" className="px-12 py-2">
-              Category
-            </th>
-            <th scope="col" className="px-12 py-2">
-              Price
-            </th>
-            <th scope="col" className="px-12 py-2">
-              Action
-            </th>
-          </tr>
-        </thead>
-        {allBooks.map((book, index) => (
-          <tbody className="divide-y" key={book._id}>
-            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th
-                scope="row"
-                className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                {index + 1}
-              </th>
-              <td className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {book.bookTitle}
-              </td>
-              <td className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {book.authorName}
-              </td>
-              <td className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {book.category}
-              </td>
-              <td className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                ${book.price}
-              </td>
-              <td className="px-12 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                <Link
-                  className="flex-wrap justify-center items-center"
-                  to={`/admin/dashboard/edit-book/${book._id}`}
-                >
-                  <button className="text-blue-600 hover:text-blue-400 mr-8 size-4">
-                    <FaRegEdit />
-                  </button>
-                </Link>
-                <button
-                  onClick={() => handleDeleteBook(book._id)}
-                  className=" text-red-600 hover:text-red-400"
-                >
-                  <FaRegTrashAlt />
-                </button>
-              </td>
+    <div className="container mx-auto px-4 my-8">
+      <h1 className="text-3xl font-bold mb-8 text-black tracking-tight text-center">Manage Your Books</h1>
+      <div className="overflow-x-auto shadow-lg sm:rounded-lg">
+        <table className="w-full text-sm text-left">
+          <thead className="text-xs uppercase bg-gradient-to-r from-teal-400 to-teal-600 text-white">
+            <tr>
+              {["No.", "Book Title", "Author Name", "Category", "Price", "Action"].map((header, index) => (
+                <th key={header} scope="col" className={`px-6 py-4 font-semibold ${index === 5 ? 'text-center' : ''}`}>
+                  {header}
+                </th>
+              ))}
             </tr>
+          </thead>
+          <tbody>
+            {allBooks.map((book, index) => (
+              <tr key={book._id} className="bg-white border-b hover:bg-teal-50 transition duration-150 ease-in-out">
+                <th scope="row" className="px-6 py-4 font-bold text-teal-600">
+                  {index + 1}
+                </th>
+                <td className="px-6 py-4 font-semibold text-gray-800">{book.bookTitle}</td>
+                <td className="px-6 py-4 text-gray-600">{book.authorName}</td>
+                <td className="px-6 py-4 text-gray-600">{book.category}</td>
+                <td className="px-6 py-4 font-semibold text-teal-600">${book.price}</td>
+                <td className="px-6 py-4">
+                  <div className="flex justify-center space-x-8">
+                    <Link to={`/admin/dashboard/edit-book/${book._id}`} className="font-medium text-teal-600 hover:text-teal-800 transition duration-150 ease-in-out">
+                      <FaRegEdit className="text-lg" />
+                    </Link>
+                    <button onClick={() => handleDeleteBook(book._id)} className="font-medium text-red-600 hover:text-red-800 transition duration-150 ease-in-out">
+                      <FaRegTrashAlt className="text-lg" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
-        ))}
-      </table>
+        </table>
+      </div>
+      <Toaster /> {/* Add this at the end of the component */}
     </div>
   );
 };

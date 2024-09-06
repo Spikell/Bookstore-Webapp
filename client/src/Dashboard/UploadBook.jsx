@@ -1,11 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Textarea } from "flowbite-react";
 import { bookCategories } from "../data";
-import "./UploadBook.css"; // Add this import
+import "./CatScrollBar.css"; // Add this import
 
 const UploadBook = () => {
-
-  // const placements = ["outside"];
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showDropdown, setShowDropdown] = useState(true);
@@ -87,7 +85,7 @@ const UploadBook = () => {
 
   return (
     <div className="px-4  my-8">
-      <h2 className="mb-8 text-2xl font-bold">Upload a Book</h2>
+      <h2 className="mb-8 ml-20 mr-48 text-3xl font-bold  text-center tracking-tight">Upload Book</h2>
       <form
         onSubmit={handleBookSubmit}
         className="flex flex-col lg:w-[1180px] flex-wrap gap-4"

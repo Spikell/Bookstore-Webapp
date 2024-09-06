@@ -1,18 +1,42 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useParams, useLocation, useLoaderData } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Textarea } from "flowbite-react";
 import { bookCategories } from "../data";
+import toast, { Toaster } from 'react-hot-toast';
 import Select from "react-select";
-import "./UploadBook.css"; 
+import "./CatScrollBar.css"; 
 
 const EditBook = () => {
   const { id } = useParams();
-  const { bookTitle, authorName, imageURL, category, bookPdfURL, description, price } =
-    useLoaderData();
+  const navigate = useNavigate();
+  
+  const [bookData, setBookData] = useState({
+    bookTitle: '',
+    authorName: '',
+    imageURL: '',
+    category: '',
+    bookPdfURL: '',
+    description: '',
+    price: ''
+  });
 
-  const [selectedCategory, setSelectedCategory] = useState(category);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    // Fetch book data when component mounts
+    fetch(`http://localhost:5000/book/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setBookData(data);
+        setSelectedCategory(data.category);
+      })
+      .catch(error => {
+        console.error("Error fetching book data:", error);
+        toast.error('Error loading book data. Please try again.');
+      });
+  }, [id]);
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
@@ -44,31 +68,21 @@ const EditBook = () => {
     };
   }, []);
 
-  // handle form submission
   const handleBookEdit = (event) => {
     event.preventDefault();
     const form = event.target;
 
-    const bookTitle = form.bookTitle.value;
-    const authorName = form.authorName.value;
-    const imageURL = form.imageURL.value;
-    const category = form.category.value;
-    const bookPdfURL = form.bookPdfURL.value;
-    const description = form.description.value;
-    const price = form.price.value;
-
     const editbookObj = {
-      bookTitle,
-      authorName,
-      imageURL,
-      category,
-      bookPdfURL,
-      description,
-      price,
+      bookTitle: form.bookTitle.value,
+      authorName: form.authorName.value,
+      imageURL: form.imageURL.value,
+      category: form.category.value,
+      bookPdfURL: form.bookPdfURL.value,
+      description: form.description.value,
+      price: form.price.value,
     };
-    console.log(editbookObj);
 
-    // Move the fetch request inside handleBookEdit
+    // Update the fetch request
     fetch(`http://localhost:5000/book/${id}`, {
       method: "PATCH",
       headers: {
@@ -78,19 +92,30 @@ const EditBook = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        alert("Book updated successfully!!");
-        form.reset();
+        if (data.modifiedCount > 0) {
+          toast.success('Book updated successfully!', {
+            position: 'bottom-center',
+          });
+          setTimeout(() => {
+            navigate('/admin/dashboard/manage');
+          }, 2000);
+        } else {
+          toast.error('No changes were made to the book.', {
+            position: 'bottom-center',
+          });
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("Error updating book!!");
+        toast.error('Error updating book. Please try again.', {
+          position: 'bottom-center',
+        });
       });
   };
 
   return (
-    <div className="px-4  my-8">
-      <h2 className="mb-8 text-2xl font-bold">Edit Book</h2>
+    <div className="px-4 my-8">
+      <h2 className="mb-8 ml-20 mr-48 text-3xl font-bold  text-center tracking-tight">Edit Book</h2>
       <form
         onSubmit={handleBookEdit}
         className="flex flex-col lg:w-[1180px] flex-wrap gap-4"
@@ -109,7 +134,7 @@ const EditBook = () => {
               id="bookTitle"
               name="bookTitle"
               placeholder="Enter book title"
-              defaultValue={bookTitle}
+              defaultValue={bookData.bookTitle}
               required
               className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
@@ -127,7 +152,7 @@ const EditBook = () => {
               id="authorName"
               name="authorName"
               placeholder="Enter author name"
-              defaultValue={authorName}
+              defaultValue={bookData.authorName}
               required
               className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
@@ -149,7 +174,7 @@ const EditBook = () => {
                 id="imageURL"
                 name="imageURL"
                 placeholder="Enter image URL"
-                defaultValue={imageURL}
+                defaultValue={bookData.imageURL}
                 required
                 className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               />
@@ -205,7 +230,7 @@ const EditBook = () => {
               id="bookPdfURL"
               name="bookPdfURL"
               placeholder="Enter PDF URL"
-              defaultValue={bookPdfURL}
+              defaultValue={bookData.bookPdfURL}
               required
               className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
@@ -223,7 +248,7 @@ const EditBook = () => {
               id="price"
               name="price"
               placeholder="Enter price"
-              defaultValue={price}
+              defaultValue={bookData.price}
               step="0.01"
               min="0"
               required
@@ -246,16 +271,17 @@ const EditBook = () => {
               name="description"
               placeholder="Enter book description"
               rows={6}
-              defaultValue={description}
+              defaultValue={bookData.description}
               required
               className="w-full rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           <button className=" bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-all duration-200 md:ml-96 mt-8">
-            Edit Book
+            Update Book
           </button>
         </div>
       </form>
+      <Toaster />
     </div>
   );
 };
