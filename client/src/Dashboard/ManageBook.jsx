@@ -3,14 +3,6 @@ import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from 'react-hot-toast'; // Add this import
 
-// import {
-//   Table,
-//   TableHeader,
-//   TableBody,
-//   TableColumn,
-//   TableRow,
-//   TableCell,
-// } from "@nextui-org/table";
 
 const ManageBook = () => {
   const [allBooks, setAllBooks] = useState([]);
@@ -53,7 +45,7 @@ const ManageBook = () => {
           </thead>
           <tbody>
             {allBooks.map((book, index) => (
-              <tr key={book._id} className="bg-white border-b hover:bg-teal-50 transition duration-150 ease-in-out">
+              <tr key={book._id} className="bg-white border-b transition duration-150 ease-in-out">
                 <th scope="row" className="px-6 py-4 font-bold text-teal-600">
                   {index + 1}
                 </th>
@@ -63,10 +55,10 @@ const ManageBook = () => {
                 <td className="px-6 py-4 font-semibold text-teal-600">${book.price}</td>
                 <td className="px-6 py-4">
                   <div className="flex justify-center space-x-8">
-                    <Link to={`/admin/dashboard/edit-book/${book._id}`} className="font-medium text-teal-600 hover:text-teal-800 transition duration-150 ease-in-out">
+                    <Link to={`/admin/dashboard/edit-book/${book._id}`} className="font-medium text-teal-600 hover:text-teal-800 hover:bg-teal-200 p-2 rounded-2xl transition duration-150 ease-in-out">
                       <FaRegEdit className="text-lg" />
                     </Link>
-                    <button onClick={() => handleDeleteBook(book._id)} className="font-medium text-red-600 hover:text-red-800 transition duration-150 ease-in-out">
+                    <button onClick={() => handleDeleteBook(book._id)} className="font-medium text-red-600 hover:text-red-800 hover:bg-red-200 p-2 rounded-2xl transition duration-150 ease-in-out">
                       <FaRegTrashAlt className="text-lg" />
                     </button>
                   </div>
@@ -76,7 +68,7 @@ const ManageBook = () => {
           </tbody>
         </table>
       </div>
-      <Toaster /> {/* Add this at the end of the component */}
+      <Toaster />
     </div>
   );
 };
