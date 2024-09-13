@@ -1,21 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaPlus, FaMinus, FaTrash } from 'react-icons/fa';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../Firebase/AuthProvider';
+import { db } from '../Firebase/firebase.config';
+import { doc, setDoc, collection } from 'firebase/firestore';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
+  const { user, loading } = useContext(AuthContext);
 
   useEffect(() => {
-    const loadCart = () => {
-      const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-      setCartItems(storedCart);
-    };
+    if (!loading && user) {
+      loadCart();
+      window.addEventListener('cartUpdated', handleCartUpdate);
+      return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+    }
+  }, [user, loading]);
 
-    loadCart();
-    window.addEventListener('storage', loadCart);
+  const loadCart = () => {
+    const storedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+    setCartItems(storedCart);
+  };
 
-    return () => window.removeEventListener('storage', loadCart);
-  }, []);
+  const handleCartUpdate = (event) => {
+    if (event.detail && event.detail.userId === user.uid) {
+      setCartItems(event.detail.cart);
+    }
+  };
+
+  const updateFirestoreCart = async (updatedCart) => {
+    if (user) {
+      const userCartRef = doc(collection(db, "cart data"), user.uid);
+      try {
+        const cartData = updatedCart.map(({ imageURL, ...item }) => ({
+          authorName: item.authorName,
+          bookTitle: item.bookTitle,
+          category: item.category,
+          price: item.price,
+          quantity: item.quantity,
+          id: item.id
+        }));
+        await setDoc(userCartRef, { items: cartData }, { merge: true });
+        console.log("Cart updated in Firestore");
+      } catch (error) {
+        console.error("Error updating cart in Firestore:", error);
+      }
+    }
+  };
+
+  const removeItem = async (itemId) => {
+    const updatedCart = cartItems.filter(item => item.id !== itemId);
+    setCartItems(updatedCart);
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+    
+    await updateFirestoreCart(updatedCart);
+
+    // Dispatch cartUpdated event
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+  };
+
+  const updateQuantity = async (itemId, change) => {
+    const updatedCart = cartItems.map(item => {
+      if (item.id === itemId) {
+        const newQuantity = item.quantity + change;
+        return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+      }
+      return item;
+    });
+    setCartItems(updatedCart);
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+
+    await updateFirestoreCart(updatedCart);
+
+    // Dispatch cartUpdated event
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+  };
 
   useEffect(() => {
     const newTotal = cartItems.reduce((sum, item) => {
@@ -25,28 +86,21 @@ function Cart() {
     setTotal(newTotal);
   }, [cartItems]);
 
-  const removeItem = (itemId) => {
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const updateQuantity = (itemId, change) => {
-    const updatedCart = cartItems.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = item.quantity + change;
-        return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
-      }
-      return item;
-    });
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
   return (
     <div className="container mx-auto mt-10 p-4">
-      <h2 className="text-2xl font-bold mb-6 text-center mt-10">Your Cart Items</h2>
-      {cartItems.length === 0 ? (
+      <h2 className="text-2xl font-bold mb-6 text-center mt-10">Your Cart</h2>
+      {loading ? (
+        <p className="text-xl text-gray-600 text-center mt-40">Loading...</p>
+      ) : !user ? (
+        <div className="flex flex-col items-center justify-center h-screen pb-24">
+          <div className="text-center">
+            <p className="text-xl text-gray-600 mb-4">Please log in to use the cart functionality</p>
+            <Link to="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-block">
+              Log In
+            </Link>
+          </div>
+        </div>
+      ) : cartItems.length === 0 ? (
         <p className="text-xl text-gray-600 text-center mt-40">Your cart is empty</p>
       ) : (
         <>
@@ -66,10 +120,10 @@ function Cart() {
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <img src={item.imageURL} alt={item.name} className="h-20 w-16 object-cover mr-4 rounded" />
+                        <img src={item.imageURL} alt={item.bookTitle} className="h-20 w-16 object-cover mr-4 rounded" />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                          <div className="text-sm text-gray-500">{item.author}</div>
+                          <div className="text-sm font-medium text-gray-900">{item.bookTitle}</div>
+                          <div className="text-sm text-gray-500">{item.authorName}</div>
                           <div className="text-xs text-gray-400">{item.category}</div>
                         </div>
                       </div>
@@ -138,7 +192,7 @@ function Cart() {
           </div>
         </>
       )}
-      <style jsx global>{`
+      <style jsx="true" global="true">{`
         /* Chrome, Safari, Edge, Opera */
         input[type=number].no-spinner::-webkit-inner-spin-button,
         input[type=number].no-spinner::-webkit-outer-spin-button {
