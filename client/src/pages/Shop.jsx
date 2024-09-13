@@ -8,6 +8,9 @@ import { HiSortAscending, HiSortDescending } from "react-icons/hi";
 import { FaShoppingCart, FaCheck } from "react-icons/fa"; // Add FaCheck import
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast'; // Import react-hot-toast
+import { AuthContext } from '../Firebase/AuthProvider';
+import { useContext } from 'react';
+import SingleBook from '../components/SingleBook';
 
 const Shop = () => {
   const [books, setBooks] = useState([]);
@@ -16,7 +19,6 @@ const Shop = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const categoryDropdownRef = useRef(null);
   const [minPrice, setMinPrice] = useState('');
@@ -25,50 +27,73 @@ const Shop = () => {
   const navigate = useNavigate();
   const [addedToCart, setAddedToCart] = useState({});
   const [cartItems, setCartItems] = useState([]);
+  const { user } = useContext(AuthContext); // Get the current user from AuthContext
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadCart = () => {
-      const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-      setCartItems(storedCart);
+      if (user) {
+        const storedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+        setCartItems(storedCart);
+      }
+      setIsLoading(false);
     };
 
     loadCart();
     window.addEventListener('storage', loadCart);
 
     return () => window.removeEventListener('storage', loadCart);
-  }, []);
+  }, [user]);
 
-  const addToCart = (book) => {
-    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+  const addToCart = async (book) => {
+    if (!user) {
+      toast.error('Please log in to add items to your cart');
+      return;
+    }
+
+    console.log("Adding to cart:", book);
+    const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
     const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
     
     const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
+    
+    // Convert image URL to base64
+    const imageBlob = await fetch(book.imageURL).then(r => r.blob());
+    const base64Image = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(imageBlob);
+    });
     
     if (existingItemIndex !== -1) {
       existingCart[existingItemIndex].quantity += 1;
     } else {
       existingCart.push({
         id: book._id,
-        name: book.bookTitle,
+        bookTitle: book.bookTitle,
         price: price,
         quantity: 1,
-        imageURL: book.imageURL,
-        author: book.author || book.authorName || 'Unknown',
+        imageURL: base64Image, // This should be the base64 image or a URL
+        authorName: book.authorName || 'Unknown',
         category: book.category
       });
     }
     
-    localStorage.setItem('cart', JSON.stringify(existingCart));
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
+    console.log("Cart updated in localStorage:", existingCart);
     setCartItems(existingCart);
-    window.dispatchEvent(new Event('storage'));
+    
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
+    
+    console.log("Dispatched cartUpdated event");
+    
     toast.success('Book added to cart!', {
       position: 'bottom-center',
     }); 
 
-    // Trigger animation
     setAddedToCart(prev => ({ ...prev, [book._id]: true }));
 
-    // Remove animation after 500ms
     setTimeout(() => {
       setAddedToCart(prev => ({ ...prev, [book._id]: false }));
     }, 500);
@@ -78,10 +103,10 @@ const Shop = () => {
     fetch("http://localhost:5000/all-books")
       .then((res) => res.json())
       .then((data) => {
-        // Ensure each book has an author property
+        // Ensure each book has an authorName property
         const booksWithAuthor = data.map(book => ({
           ...book, 
-          author: book.author || book.authorName || 'Unknown'
+          authorName: book.authorName || 'Unknown'
         }));
         setBooks(booksWithAuthor);
         setFilteredBooks(booksWithAuthor);
@@ -90,9 +115,7 @@ const Shop = () => {
 
   useEffect(() => {
     const filtered = books.filter((book) =>
-      book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase())
+      book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) 
     );
     setFilteredBooks(filtered);
   }, [searchTerm, books]);
@@ -136,15 +159,20 @@ const Shop = () => {
       const matchesSearch = searchTerm === '' || 
         book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesAuthor = author === '' || book.author.toLowerCase().includes(author.toLowerCase());
+        book.authorName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesAuthor = author === '' || book.authorName.toLowerCase().includes(author.toLowerCase());
       const matchesCategory = category === '' || book.category.toLowerCase() === category.toLowerCase();
-      const matchesPrice = (minPrice === '' || book.price >= Number(minPrice)) && 
+      const matchesPrice = (minPrice === '' || book.price >= Number(minPrice)) &&
                            (maxPrice === '' || book.price <= Number(maxPrice));
+
       return matchesSearch && matchesAuthor && matchesCategory && matchesPrice;
     });
     setFilteredBooks(filtered);
     setShowAdvancedSearch(false);
+
+    // Log the results for debugging
+    console.log('Filtered books:', filtered);
+    console.log('Search criteria:', { searchTerm, author, category, minPrice, maxPrice });
   };
 
   const toggleSortOrder = () => {
@@ -152,6 +180,7 @@ const Shop = () => {
   };
 
   const sortedBooks = useMemo(() => {
+    console.log('Sorting books:', filteredBooks.length);
     return [...filteredBooks].sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.price - b.price;
@@ -159,11 +188,23 @@ const Shop = () => {
         return b.price - a.price;
       }
     });
-  }, [filteredBooks, sortOrder]);
+  }, [filteredBooks, sortOrder, searchTerm, author, category, minPrice, maxPrice]);
 
   const isInCart = (bookId) => {
     return cartItems.some(item => item.id === bookId);
   };
+
+  const openBookModal = (book) => {
+    setSelectedBook(book);
+  };
+
+  const closeBookModal = () => {
+    setSelectedBook(null);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or a more sophisticated loading component
+  }
 
   return (
     <div className="mt-24 py-4 lg:px-24">
@@ -281,7 +322,7 @@ const Shop = () => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 my-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-1">
           {sortedBooks.map((book) => (
-            <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl">
+            <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={() => openBookModal(book)}>
               <div className="relative aspect-[2/3] bg-gray-100">
                 <img
                   src={book.imageURL}
@@ -320,6 +361,15 @@ const Shop = () => {
           ))}
         </div>
       </div>
+
+      {/* SingleBook Modal */}
+      {selectedBook && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={closeBookModal}>
+          <div className="bg-white rounded-lg p-4 max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+            <SingleBook book={selectedBook} onClose={closeBookModal} addToCart={addToCart} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
