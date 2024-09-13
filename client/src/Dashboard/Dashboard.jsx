@@ -46,8 +46,9 @@ const Dashboard = () => {
   const totalBooks = books.length;
   const totalAuthors = new Set(books.map((book) => book.authorName)).size;
   const totalCategories = new Set(books.map((book) => book.category)).size;
-  const averagePrice =
-    books.reduce((sum, book) => sum + parseFloat(book.price), 0) / totalBooks;
+  const averagePrice = totalBooks > 0
+    ? books.reduce((sum, book) => sum + parseFloat(book.price), 0) / totalBooks
+    : 0;
 
   const categoryCounts = books.reduce((acc, book) => {
     acc[book.category] = (acc[book.category] || 0) + 1;
@@ -155,23 +156,33 @@ const Dashboard = () => {
     </div>
   );
 
-  const bestSellingBook = books.reduce((best, book) => 
-    (book.salesCount > (best?.salesCount || 0)) ? book : best, null);
+  const bestSellingBook = books.length > 0
+    ? books.reduce((best, book) => 
+        (book.salesCount > (best?.salesCount || 0)) ? book : best, books[0])
+    : null;
 
-  const topAuthor = Object.entries(books.reduce((acc, book) => {
-    acc[book.authorName] = (acc[book.authorName] || 0) + 1;
-    return acc;
-  }, {})).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  const topAuthor = books.length > 0
+    ? Object.entries(books.reduce((acc, book) => {
+        acc[book.authorName] = (acc[book.authorName] || 0) + 1;
+        return acc;
+      }, {})).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+    : null;
 
-  const highestPricedBook = books.reduce((highest, book) => 
-    (parseFloat(book.price) > parseFloat(highest?.price || 0)) ? book : highest, null);
+  const highestPricedBook = books.length > 0
+    ? books.reduce((highest, book) => 
+        (parseFloat(book.price) > parseFloat(highest?.price || 0)) ? book : highest, books[0])
+    : null;
 
-  const lowestPricedBook = books.reduce((lowest, book) => 
-    (parseFloat(book.price) < parseFloat(lowest?.price || Infinity)) ? book : lowest, null);
+  const lowestPricedBook = books.length > 0
+    ? books.reduce((lowest, book) => 
+        (parseFloat(book.price) < parseFloat(lowest?.price || Infinity)) ? book : lowest, books[0])
+    : null;
 
   const totalInventoryValue = books.reduce((sum, book) => sum + parseFloat(book.price), 0);
 
-  const mostPopularCategory = Object.entries(categoryCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  const mostPopularCategory = Object.keys(categoryCounts).length > 0
+    ? Object.entries(categoryCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+    : null;
 
   if (loading) return <div className="text-center py-10">Loading...</div>;
   if (error)
