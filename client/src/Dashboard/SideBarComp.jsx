@@ -19,10 +19,10 @@ import { AuthContext } from "../Firebase/AuthProvider";
 import { AiOutlineHome } from "react-icons/ai";
 
 const getNameFromEmail = (email) => {
-  if (!email) return 'Guest';
-  const [name] = email.split('@');
-  const [firstName, lastName] = name.split('.');
-  return `${firstName} ${lastName || ''}`.trim();
+  if (!email) return "Guest";
+  const [name] = email.split("@");
+  const [firstName, lastName] = name.split(".");
+  return `${firstName} ${lastName || ""}`.trim();
 };
 
 export const SideBar = () => {
@@ -41,9 +41,7 @@ export const SideBar = () => {
           alt="User Profile"
           className="border-gray-300 rounded-full"
         />
-        <h1 className="text-lg font-medium">
-          {displayName}
-        </h1>
+        <h1 className="text-lg font-medium">{displayName}</h1>
       </div>
 
       <Sidebar.Items>
