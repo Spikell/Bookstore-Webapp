@@ -1,35 +1,88 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
-import { Link } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaCheck } from "react-icons/fa";
+import toast from 'react-hot-toast'; // Import toast
+import { AuthContext } from '../../Firebase/AuthProvider';
 
-const BookCards = ({ headline, books }) => {
-  const addToCart = (book, e) => {
-    e.preventDefault(); // Prevent navigation to book details page
-    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
-    
-    if (existingItemIndex !== -1) {
-      existingCart[existingItemIndex].quantity += 1;
-    } else {
-      existingCart.push({
-        id: book._id,
-        name: book.bookTitle,
-        price: book.price,
-        quantity: 1,
-        imageURL: book.imageURL,
-        author: book.authorName,
-        category: book.category // Add this line
-      });
+const BookCards = ({ headline, books, onBookSelect }) => {
+  const { user } = useContext(AuthContext);
+  const [cartItems, setCartItems] = useState([]);
+  const [recentlyAdded, setRecentlyAdded] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      const storedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+      setCartItems(storedCart);
     }
-    
-    localStorage.setItem('cart', JSON.stringify(existingCart));
-    // Dispatch a custom event to notify other components
-    window.dispatchEvent(new Event('storage'));
-    alert('Book added to cart!');
+  }, [user]);
+
+  const addToCart = async (book, e) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Please log in to add items to your cart');
+      return;
+    }
+
+    try {
+      const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+      const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
+      
+      const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
+      
+      // Convert image URL to base64
+      const imageBlob = await fetch(book.imageURL).then(r => r.blob());
+      const base64Image = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+      
+      let updatedCart;
+      if (existingItemIndex !== -1) {
+        updatedCart = existingCart.map((item, index) => 
+          index === existingItemIndex ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        updatedCart = [
+          ...existingCart,
+          {
+            id: book._id,
+            bookTitle: book.bookTitle,
+            price: price,
+            quantity: 1,
+            imageURL: base64Image,
+            authorName: book.authorName || 'Unknown',
+            category: book.category
+          }
+        ];
+      }
+      
+      localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+      
+      toast.success('Book added to cart!', {
+        position: 'bottom-center',
+      });
+
+      setCartItems(updatedCart);
+      setRecentlyAdded(prev => ({ ...prev, [book._id]: true }));
+      
+      // Add a timeout to remove the bounce effect
+      setTimeout(() => {
+        setRecentlyAdded(prev => ({ ...prev, [book._id]: false }));
+      }, 500);
+
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add book to cart. Please try again.');
+    }
+  };
+
+  const isInCart = (bookId) => {
+    return cartItems.some(item => item.id === bookId);
   };
 
   return (
@@ -63,24 +116,29 @@ const BookCards = ({ headline, books }) => {
         >
           {books.map(book => (
             <SwiperSlide key={book._id}>
-              <Link to={`/book/${book._id}`}>
-                <div className="relative bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden">
-                  <img src={book.imageURL} alt="" className="w-full h-90 object-cover" /> {/* Increased height to 80 */}
-                  <div 
-                    className="absolute top-3 right-3 bg-blue-700 hover:bg-blue-800 p-2 rounded-lg cursor-pointer"
-                    onClick={(e) => addToCart(book, e)}
-                  >
-                    <FaShoppingCart className="text-white w-4 h-4" />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800">{book.bookTitle}</h3>
-                    <p className="text-sm text-gray-600">{book.authorName}</p>
-                    <div className="mt-2">
-                      <p className="text-lg font-bold text-green-600">${book.price}</p>
-                    </div>
+              <div 
+                className="relative bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden cursor-pointer"
+                onClick={() => onBookSelect(book)}
+              >
+                <img src={book.imageURL} alt="" className="w-full h-90 object-cover" /> {/* Increased height to 80 */}
+                <button 
+                  className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${recentlyAdded[book._id] ? 'scale-110' : ''}`}
+                  onClick={(e) => addToCart(book, e)}
+                >
+                  {isInCart(book._id) ? (
+                    <FaCheck className={`w-4 h-4 ${recentlyAdded[book._id] ? 'animate-bounce' : ''}`} />
+                  ) : (
+                    <FaShoppingCart className="w-4 h-4" />
+                  )}
+                </button>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800">{book.bookTitle}</h3>
+                  <p className="text-sm text-gray-600">{book.authorName}</p>
+                  <div className="mt-2">
+                    <p className="text-lg font-bold text-green-600">${book.price}</p>
                   </div>
                 </div>
-              </Link>
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
