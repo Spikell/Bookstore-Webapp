@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { FaPlus, FaMinus, FaTrash } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../Firebase/AuthProvider';
 import { db } from '../Firebase/firebase.config';
-import { doc, setDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, collection, writeBatch } from 'firebase/firestore';
+import toast from 'react-hot-toast';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
   const { user, loading } = useContext(AuthContext);
+  const pendingUpdatesRef = useRef([]);
+  const updateTimeoutRef = useRef(null);
+  const BATCH_INTERVAL = 1000; // 1 second interval for batching updates
 
   useEffect(() => {
     if (!loading && user) {
@@ -32,7 +36,9 @@ function Cart() {
 
   const updateFirestoreCart = async (updatedCart) => {
     if (user) {
+      const batch = writeBatch(db);
       const userCartRef = doc(collection(db, "cart data"), user.uid);
+      
       try {
         const cartData = updatedCart.map(({ imageURL, ...item }) => ({
           authorName: item.authorName,
@@ -42,41 +48,70 @@ function Cart() {
           quantity: item.quantity,
           id: item.id
         }));
-        await setDoc(userCartRef, { items: cartData }, { merge: true });
+        
+        batch.set(userCartRef, { items: cartData }, { merge: true });
+        await batch.commit();
         console.log("Cart updated in Firestore");
       } catch (error) {
         console.error("Error updating cart in Firestore:", error);
+        loadCart(); // Reload cart from local storage on error
       }
     }
   };
 
-  const removeItem = async (itemId) => {
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedCart);
-    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+  const processPendingUpdates = useCallback(() => {
+    if (pendingUpdatesRef.current.length > 0) {
+      const updatedCart = pendingUpdatesRef.current.reduce((acc, update) => {
+        if (update.removed) {
+          return acc.filter(item => item.id !== update.id);
+        }
+        const existingItemIndex = acc.findIndex(item => item.id === update.id);
+        if (existingItemIndex !== -1) {
+          acc[existingItemIndex] = { ...acc[existingItemIndex], ...update };
+        }
+        return acc;
+      }, [...cartItems]);
+
+      setCartItems(updatedCart);
+      localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+      updateFirestoreCart(updatedCart);
+      pendingUpdatesRef.current = [];
+    }
+  }, [cartItems, user]);
+
+  const queueUpdate = useCallback((itemId, changes) => {
+    pendingUpdatesRef.current.push({ id: itemId, ...changes });
     
-    await updateFirestoreCart(updatedCart);
+    // Update local state immediately
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId ? { ...item, ...changes } : item
+      )
+    );
 
-    // Dispatch cartUpdated event
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
-  };
+    // Clear existing timeout and set a new one
+    if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+    updateTimeoutRef.current = setTimeout(processPendingUpdates, BATCH_INTERVAL);
+  }, [processPendingUpdates]);
 
-  const updateQuantity = async (itemId, change) => {
-    const updatedCart = cartItems.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = item.quantity + change;
-        return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
-      }
-      return item;
-    });
-    setCartItems(updatedCart);
-    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+  const removeItem = useCallback((itemId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+    queueUpdate(itemId, { removed: true });
+    toast.success('Item removed from cart');
+  }, [queueUpdate]);
 
-    await updateFirestoreCart(updatedCart);
-
-    // Dispatch cartUpdated event
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
-  };
+  const updateQuantity = useCallback((itemId, change) => {
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          : item
+      )
+    );
+    queueUpdate(itemId, { quantity: Math.max(1, cartItems.find(item => item.id === itemId).quantity + change) });
+    toast.success('Cart updated');
+  }, [cartItems, queueUpdate]);
 
   useEffect(() => {
     const newTotal = cartItems.reduce((sum, item) => {
@@ -138,6 +173,7 @@ function Cart() {
                         <button 
                           onClick={() => updateQuantity(item.id, -1)}
                           className="text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded-l transition duration-200"
+                          disabled={item.quantity <= 1}
                         >
                           <FaMinus />
                         </button>
