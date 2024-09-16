@@ -1,46 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import BannerCard from "./BannerCard";
-import { Card } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { AuthContext } from '../../Firebase/AuthProvider';
+import toast from 'react-hot-toast'; // Import toast
 
-const Banner = () => {
+const Banner = ({ onBookSelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [books, setBooks] = useState([]);
+  const [allBooks, setAllBooks] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
+
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     fetch("http://localhost:5000/all-books")
       .then((res) => res.json())
-      .then((data) => setBooks(data));
+      .then((data) => setAllBooks(data));
   }, []);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     if (e.target.value === "") {
       setShowResults(false);
+      setSearchResults([]);
     }
   };
 
   // search for books
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
-      fetch(
-        `http://localhost:5000/all-books?bookTitle=${encodeURIComponent(
-          searchQuery
-        )}`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setBooks(data);
-          setShowResults(true);
-          if (data.length > 0) {
-            setSelectedBook(data[0]);
-          }
-        });
+      const filteredBooks = allBooks.filter(book => 
+        book.bookTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.authorName.toLowerCase().includes(searchQuery.toLowerCase()) 
+      );
+      setSearchResults(filteredBooks);
+      setShowResults(true);
     } else {
       setShowResults(false);
-      setSelectedBook(null);
+      setSearchResults([]);
     }
   };
 
@@ -48,6 +44,47 @@ const Banner = () => {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const addToCart = async (book) => {
+    if (!user) {
+      toast.error('Please log in to add items to your cart');
+      return;
+    }
+
+    const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+    const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
+    
+    const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
+    
+    // Convert image URL to base64
+    const imageBlob = await fetch(book.imageURL).then(r => r.blob());
+    const base64Image = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(imageBlob);
+    });
+    
+    if (existingItemIndex !== -1) {
+      existingCart[existingItemIndex].quantity += 1;
+    } else {
+      existingCart.push({
+        id: book._id,
+        bookTitle: book.bookTitle,
+        price: price,
+        quantity: 1,
+        imageURL: base64Image,
+        authorName: book.authorName || 'Unknown',
+        category: book.category
+      });
+    }
+    
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
+    
+    toast.success('Book added to cart!', {
+      position: 'bottom-center',
+    });
   };
 
   return (
@@ -87,39 +124,43 @@ const Banner = () => {
           </div>
 
           {/* Search results */}
-          {showResults && books.length > 0 && (
+          {showResults && (
             <div className="mt-8 flex flex-col space-y-4">
               <h3 className="text-2xl font-semibold text-gray-800">
-                Search Results
+                Search Results ({searchResults.length})
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {books.map((book) => (
-                  <Card className="w-full max-w-[180px]" key={book._id}>
-                    <Link
-                      to={`/book/${book._id}`}
-                      className="flex flex-col h-full"
-                    >
+                {searchResults.map((book) => (
+                  <div 
+                    key={book._id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
+                    onClick={() => onBookSelect(book)}
+                  >
+                    <div className="h-48 overflow-hidden" onClick={() => onBookSelect(book)}>
                       <img
                         src={book.imageURL}
                         alt={book.bookTitle}
-                        className="w-full h-[240px] object-contain"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="flex flex-col p-3 flex-grow">
-                        <h5 className="text-sm font-bold text-gray-900 line-clamp-2">
+                    </div>
+                    <div className="p-3 flex-grow flex flex-col justify-between">
+                      <div onClick={() => onBookSelect(book)}>
+                        <h5 className="text-sm font-bold text-gray-900 line-clamp-2 mb-1">
                           {book.bookTitle}
                         </h5>
-                        <p className="text-xs text-gray-600 line-clamp-1">
+                        <p className="text-xs text-gray-600 mb-1">
                           By {book.authorName}
                         </p>
-                        <div className="mt-auto pt-2">
-                          <span className="text-sm font-semibold text-blue-600">
-                            ${book.price}
-                          </span>
-                        </div>
+                        <p className="text-xs text-blue-600 mb-1">{book.category}</p>
                       </div>
-                    </Link>
-                  </Card>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-sm font-semibold text-green-600">
+                          ${parseFloat(book.price).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
