@@ -36,7 +36,7 @@ const CartDB = () => {
 
             setCart(cartWithUploadedImages);
             
-            // Store cart data in Firestore (without imageURL)
+            // Store cart data in Firestore
             const userCartRef = doc(collection(db, "cart data"), user.uid);
             const cartData = cartWithUploadedImages.map(({ imageURL, ...item }) => ({
               authorName: item.authorName,
@@ -46,7 +46,9 @@ const CartDB = () => {
               quantity: item.quantity,
               id: item.id
             }));
-            await setDoc(userCartRef, { items: cartData }, { merge: true });
+            
+            // Use set instead of setDoc to completely replace the cart data
+            await setDoc(userCartRef, { items: cartData });
             console.log("Cart updated in Firestore");
           } catch (error) {
             console.error("Error updating cart:", error);
