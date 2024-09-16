@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Card } from "flowbite-react";
 import "../App.css";
 import { ImSearch } from "react-icons/im";
@@ -31,6 +31,49 @@ const Shop = () => {
   const [selectedBook, setSelectedBook] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const pendingUpdatesRef = useRef([]);
+  const updateTimeoutRef = useRef(null);
+  const BATCH_INTERVAL = 1000; // 1 second interval for batching updates
+
+  const processPendingUpdates = useCallback(() => {
+    if (pendingUpdatesRef.current.length > 0) {
+      const updatedCart = pendingUpdatesRef.current.reduce((acc, update) => {
+        const existingItemIndex = acc.findIndex(item => item.id === update.id);
+        if (existingItemIndex !== -1) {
+          acc[existingItemIndex] = { ...acc[existingItemIndex], ...update };
+        } else {
+          acc.push(update);
+        }
+        return acc;
+      }, [...cartItems]);
+
+      setCartItems(updatedCart);
+      localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+      pendingUpdatesRef.current = [];
+    }
+  }, [cartItems, user]);
+
+  const queueUpdate = useCallback((itemId, changes) => {
+    pendingUpdatesRef.current.push({ id: itemId, ...changes });
+    
+    // Update local state immediately
+    setCartItems(prevItems => {
+      const existingItemIndex = prevItems.findIndex(item => item.id === itemId);
+      if (existingItemIndex !== -1) {
+        return prevItems.map(item => 
+          item.id === itemId ? { ...item, ...changes } : item
+        );
+      } else {
+        return [...prevItems, changes];
+      }
+    });
+
+    // Clear existing timeout and set a new one
+    if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+    updateTimeoutRef.current = setTimeout(processPendingUpdates, BATCH_INTERVAL);
+  }, [processPendingUpdates]);
+
   useEffect(() => {
     const loadCart = () => {
       if (user) {
@@ -52,51 +95,43 @@ const Shop = () => {
       return;
     }
 
-    console.log("Adding to cart:", book);
-    const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
-    const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
-    
-    const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
-    
-    // Convert image URL to base64
-    const imageBlob = await fetch(book.imageURL).then(r => r.blob());
-    const base64Image = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(imageBlob);
-    });
-    
-    if (existingItemIndex !== -1) {
-      existingCart[existingItemIndex].quantity += 1;
-    } else {
-      existingCart.push({
+    try {
+      const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
+      
+      // Convert image URL to base64
+      const imageBlob = await fetch(book.imageURL).then(r => r.blob());
+      const base64Image = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+      
+      const newItem = {
         id: book._id,
         bookTitle: book.bookTitle,
         price: price,
         quantity: 1,
-        imageURL: base64Image, // This should be the base64 image or a URL
+        imageURL: base64Image,
         authorName: book.authorName || 'Unknown',
         category: book.category
+      };
+
+      queueUpdate(book._id, newItem);
+      
+      toast.success('Book added to cart!', {
+        position: 'bottom-center',
       });
+
+      setAddedToCart(prev => ({ ...prev, [book._id]: true }));
+
+      setTimeout(() => {
+        setAddedToCart(prev => ({ ...prev, [book._id]: false }));
+      }, 500);
+
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add book to cart. Please try again.');
     }
-    
-    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
-    console.log("Cart updated in localStorage:", existingCart);
-    setCartItems(existingCart);
-    
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
-    
-    console.log("Dispatched cartUpdated event");
-    
-    toast.success('Book added to cart!', {
-      position: 'bottom-center',
-    }); 
-
-    setAddedToCart(prev => ({ ...prev, [book._id]: true }));
-
-    setTimeout(() => {
-      setAddedToCart(prev => ({ ...prev, [book._id]: false }));
-    }, 500);
   };
 
   useEffect(() => {
@@ -200,6 +235,13 @@ const Shop = () => {
 
   const closeBookModal = () => {
     setSelectedBook(null);
+  };
+
+  const handleBookClick = (book, event) => {
+    // Check if the click target is the cart button or its child elements
+    if (!event.target.closest('.cart-button')) {
+      openBookModal(book);
+    }
   };
 
   if (isLoading) {
@@ -322,7 +364,7 @@ const Shop = () => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 my-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-1">
           {sortedBooks.map((book) => (
-            <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={() => openBookModal(book)}>
+            <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={(e) => handleBookClick(book, e)}>
               <div className="relative aspect-[2/3] bg-gray-100">
                 <img
                   src={book.imageURL}
@@ -330,8 +372,11 @@ const Shop = () => {
                   alt={book.bookTitle}
                 />
                 <button 
-                  className={`absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
-                  onClick={() => addToCart(book)}
+                  className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(book);
+                  }}
                 >
                   {isInCart(book._id) ? (
                     <FaCheck className={`w-4 h-4 ${addedToCart[book._id] ? 'animate-bounce' : ''}`} />
@@ -365,7 +410,7 @@ const Shop = () => {
       {/* SingleBook Modal */}
       {selectedBook && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={closeBookModal}>
-          <div className="bg-white rounded-lg p-4 max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-lg w-11/12 max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <SingleBook book={selectedBook} onClose={closeBookModal} addToCart={addToCart} />
           </div>
         </div>
