@@ -41,7 +41,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      // Add a delay before setting loading to false
+      setTimeout(() => {
+        setLoading(false);
+      }, 250); // 1 second delay
     });
 
     return () => unsubscribe();
@@ -57,12 +60,38 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Or a more sophisticated loading component
+    return (
+      <div className="loading-dots">
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <style jsx>{`
+          .loading-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+          }
+          .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: bounce 1.4s infinite ease-in-out both;
+          }
+          .dot:nth-child(1) { animation-delay: -0.32s; }
+          .dot:nth-child(2) { animation-delay: -0.16s; }
+          @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
-    <AuthContext.Provider value={authInfo}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
 };
