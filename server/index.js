@@ -7,6 +7,7 @@ const cors = require("cors");
 //middleware
 app.use(cors());
 app.use(express.json());
+app.use('/static', express.static('public'));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
