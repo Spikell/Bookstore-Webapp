@@ -1,11 +1,20 @@
 require('dotenv').config();
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
-const cors = require("cors");
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+};
 
 //middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/static', express.static('public'));
 
@@ -16,6 +25,11 @@ app.get("/", (req, res) => {
 //mongodb config
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  console.error("MONGODB_URI is not set in the environment variables");
+  process.exit(1);
+}
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -106,12 +120,19 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+  } catch (error) {
+    console.error("Database connection error:", error);
+    process.exit(1);
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
-run().catch(console.dir);
+
+run().catch((error) => {
+  console.error("Unhandled error in run function:", error);
+  process.exit(1);
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
