@@ -6,7 +6,7 @@ const port = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://bookstore-webapp-frontend.vercel.app/'],
+  origin: ["https://bookstore-webapp-frontend.vercel.app"],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
