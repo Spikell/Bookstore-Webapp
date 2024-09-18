@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     const makeApiCall = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-books`);
+        const response = await axios.post("https://bookstore-webapp-api.vercel.app/");
         console.log("API response:", response.data);
       } catch (error) {
         console.error("Error making API call:", error);
