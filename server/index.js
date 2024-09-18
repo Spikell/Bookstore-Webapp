@@ -44,6 +44,7 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    console.log("Connected to MongoDB");
 
     //create a collection of documents for our database
     const bookCollections = client.db("BookInventory").collection("books");
@@ -61,7 +62,6 @@ async function run() {
       const result = await bookCollections.insertMany(data);
       res.send(result);
     });
-
 
     //update book data : patch or update methods
     app.patch("/book/:id", async (req, res) => {
@@ -120,12 +120,15 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+
+    // Add a general error handler for all routes
+    app.use((err, req, res, next) => {
+      console.error("Unhandled error:", err);
+      res.status(500).send("An unexpected error occurred");
+    });
   } catch (error) {
     console.error("Database connection error:", error);
     process.exit(1);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 
@@ -135,5 +138,5 @@ run().catch((error) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
