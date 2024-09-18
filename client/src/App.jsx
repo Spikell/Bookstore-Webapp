@@ -14,10 +14,15 @@ function App() {
   useEffect(() => {
     const makeApiCall = async () => {
       try {
+        console.log("Attempting to call API at:", `${import.meta.env.VITE_API_URL}/all-books`);
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-books`);
         console.log("API response:", response.data);
       } catch (error) {
-        console.error("Error making API call:", error);
+        console.error("Error making API call:", error.message);
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+        }
       }
     };
 

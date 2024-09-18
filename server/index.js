@@ -104,15 +104,20 @@ async function run() {
 
     // find book by category or title
     app.get("/all-books", async (req, res) => {
-      let query = {};
-      if (req.query?.category) {
-        query = { category: { $regex: new RegExp(req.query.category, "i") } };
+      try {
+        let query = {};
+        if (req.query?.category) {
+          query = { category: { $regex: new RegExp(req.query.category, "i") } };
+        }
+        if (req.query?.bookTitle) {
+          query = { bookTitle: { $regex: new RegExp(req.query.bookTitle, "i") } };
+        }
+        const result = await bookCollections.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error in /all-books route:", error);
+        res.status(500).send("An error occurred while fetching books");
       }
-      if (req.query?.bookTitle) {
-        query = { bookTitle: { $regex: new RegExp(req.query.bookTitle, "i") } };
-      }
-      const result = await bookCollections.find(query).toArray();
-      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
