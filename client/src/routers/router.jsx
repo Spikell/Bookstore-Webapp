@@ -1,4 +1,4 @@
-import App from '../App';
+import App from "../App";
 import Home from "../pages/Home";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Shop from "../pages/Shop";
@@ -14,8 +14,6 @@ import PrivateRoute from "../Private Route/PrivateRoute";
 import Login from "../components/Login";
 import Logout from "../Logout";
 import Cart from "../pages/Cart";
-
-
 
 const router = createBrowserRouter([
   {
@@ -33,7 +31,7 @@ const router = createBrowserRouter([
       {
         path: "/about",
         element: <About />,
-      },      
+      },
       {
         path: "/cart",
         element: <Cart />,
@@ -41,9 +39,12 @@ const router = createBrowserRouter([
       {
         path: "/book/:id",
         element: <SingleBook />,
-        loader: ({ params }) => fetch(`http://localhost:5000/book/${params.id}`),
+        loader: ({ params }) =>
+          fetch(
+            `${import.meta.env.VITE_API_URL}/book/${params.id}` ||
+              "http://localhost:5000/book/${params.id}"
+          ),
       },
-
     ],
   },
   {
@@ -52,20 +53,29 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/admin/dashboard",
-        element: <PrivateRoute><Dashboard /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/admin/dashboard/upload",
         element: <UploadBook />,
+        loader: ({ params }) =>
+          fetch(`${import.meta.env.VITE_API_URL}/upload-book` || "http://localhost:5000/upload-book"),
       },
       {
         path: "/admin/dashboard/manage",
         element: <ManageBook />,
+        loader: ({ params }) =>
+          fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books"),
       },
       {
         path: "/admin/dashboard/edit-book/:id",
         element: <EditBook />,
-        loader: ({ params }) => fetch(`http://localhost:5000/book/${params.id}`),
+        loader: ({ params }) =>
+          fetch(`${import.meta.env.VITE_API_URL}/book/${params.id}` || "http://localhost:5000/book/${params.id}"),
       },
     ],
   },
@@ -82,6 +92,5 @@ const router = createBrowserRouter([
     element: <Logout />,
   },
 ]);
-
 
 export default router;
