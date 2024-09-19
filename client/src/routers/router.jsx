@@ -62,20 +62,16 @@ const router = createBrowserRouter([
       {
         path: "/admin/dashboard/upload",
         element: <UploadBook />,
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_API_URL}/upload-book` || "http://localhost:5000/upload-book"),
       },
       {
         path: "/admin/dashboard/manage",
         element: <ManageBook />,
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books"),
       },
       {
         path: "/admin/dashboard/edit-book/:id",
         element: <EditBook />,
         loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_API_URL}/book/${params.id}` || "http://localhost:5000/book/${params.id}"),
+          fetch(`${import.meta.env.VITE_API_URL}/book/${params.id}`),
       },
     ],
   },
