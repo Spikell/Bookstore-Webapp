@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "builds": [{ "src": "*.js", "use": "@vercel/node" }],
+  "builds": [{ "src": "package.json", "use": "@vercel/static-build" }],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
 }
