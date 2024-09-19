@@ -11,20 +11,8 @@
     ],
     "rewrites": [
       {
-        "source": "/admin/dashboard/upload",
-        "destination": "/index.html"
-      },
-      {
-        "source": "/admin/dashboard/manage",
-        "destination": "/index.html"
-      },
-      {
-        "source": "/admin/dashboard/edit-book/:id",
-        "destination": "/index.html"
-      },
-      {
         "source": "/(.*)",
-        "destination": "/index.html"
+        "destination": "/"
       }
     ]
   }
