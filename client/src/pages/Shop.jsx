@@ -135,7 +135,7 @@ const Shop = () => {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books`)
+    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
       .then((res) => res.json())
       .then((data) => {
         // Ensure each book has an authorName property
@@ -172,7 +172,7 @@ const Shop = () => {
   const filteredCategories = useMemo(() => {
     if (!category) return bookCategories;
     return bookCategories.filter((cat) =>
-      cat.label.toLowerCase().includes(category.toLowerCase())
+      cat.label.toLowerCase().includes((category || '').toLowerCase())
     );
   }, [category]);
 
