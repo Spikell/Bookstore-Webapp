@@ -3,7 +3,7 @@ import { Card } from "flowbite-react";
 import "../App.css";
 import { ImSearch } from "react-icons/im";
 import { VscSettings } from "react-icons/vsc";
-import { bookCategories } from "../data"; 
+import { bookCategories } from "../data";
 import { HiSortAscending, HiSortDescending } from "react-icons/hi";
 import { FaShoppingCart, FaCheck } from "react-icons/fa"; // Add FaCheck import
 import { useNavigate } from 'react-router-dom';
@@ -192,16 +192,22 @@ const Shop = () => {
   const handleAdvancedSearch = () => {
     const filtered = books.filter((book) => {
       const matchesSearch = searchTerm === '' || 
-        book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.authorName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesAuthor = author === '' || book.authorName.toLowerCase().includes(author.toLowerCase());
-      const matchesCategory = category === '' || book.category.toLowerCase() === category.toLowerCase();
+        (book.bookTitle && book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (book.category && book.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (book.authorName && book.authorName.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesAuthor = author === '' || 
+        (book.authorName && book.authorName.toLowerCase().includes(author.toLowerCase()));
+      
+      const matchesCategory = category === '' || 
+        (book.category && book.category.toLowerCase() === category.toLowerCase());
+      
       const matchesPrice = (minPrice === '' || book.price >= Number(minPrice)) &&
                            (maxPrice === '' || book.price <= Number(maxPrice));
-
+    
       return matchesSearch && matchesAuthor && matchesCategory && matchesPrice;
     });
+    
     setFilteredBooks(filtered);
     setShowAdvancedSearch(false);
 
@@ -243,6 +249,10 @@ const Shop = () => {
       openBookModal(book);
     }
   };
+
+  useEffect(() => {
+    console.log("Current category:", category);
+  }, [category]);
 
   if (isLoading) {
     return <div>Loading...</div>; // Or a more sophisticated loading component
