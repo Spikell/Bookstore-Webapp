@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Textarea } from "flowbite-react";
 import { bookCategories } from "../data";
+import toast, { Toaster } from 'react-hot-toast';
 import "./CatScrollBar.css"; // Add this import
 
 const UploadBook = () => {
@@ -64,7 +65,7 @@ const UploadBook = () => {
     console.log(bookObj);
 
     // save book to database
-    fetch(`${import.meta.env.VITE_API_URL}/upload-book`, {
+    fetch(`${import.meta.env.VITE_API_URL}/upload-book` || "http://localhost:5000/upload-book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -245,6 +246,7 @@ const UploadBook = () => {
           </button>
         </div>
       </form>
+      <Toaster />
     </div>
   );
 };
