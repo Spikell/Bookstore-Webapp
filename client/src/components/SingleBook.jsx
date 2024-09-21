@@ -68,7 +68,7 @@ const SingleBook = ({ book, onClose, addToCart }) => {
           <p className="text-xl text-gray-600 mb-1">By {book.authorName}</p>
           <p className="text-lg text-blue-600 mb-4">{book.category}</p>
           <div className="flex-grow overflow-y-auto pr-4 mb-4 custom-scrollbar">
-            <p className="text-gray-700 leading-relaxed">{book.description}</p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{book.description}</p>
           </div>
         </div>
         <div className="mt-2">

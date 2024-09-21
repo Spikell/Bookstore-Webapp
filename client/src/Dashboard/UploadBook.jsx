@@ -50,7 +50,7 @@ const UploadBook = () => {
     const imageURL = form.imageURL.value;
     const category = form.category.value;
     const bookPdfURL = form.bookPdfURL.value;
-    const description = form.description.value;
+    const description = form.description.value.trim();
     const price = form.price.value;
 
     const bookObj = {
@@ -65,7 +65,7 @@ const UploadBook = () => {
     console.log(bookObj);
 
     // save book to database
-    fetch(`${import.meta.env.VITE_API_URL}/upload-book` || "http://localhost:5000/upload-book", {
+    fetch(`${import.meta.env.VITE_API_URL}/upload-book`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,12 +75,12 @@ const UploadBook = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        alert("Book uploaded successfully!!");
+        toast.success("Book uploaded successfully!!");
         form.reset();
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("Error uploading book!!");
+        toast.error("Error uploading book!!");
       });
   };
 
@@ -239,6 +239,7 @@ const UploadBook = () => {
               rows={6}
               required
               className="w-full rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              style={{ whiteSpace: 'pre-wrap' }}
             />
           </div>
           <button className=" bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-all duration-200 md:ml-96 mt-8">
