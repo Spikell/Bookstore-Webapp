@@ -11,6 +11,8 @@ import toast, { Toaster } from 'react-hot-toast'; // Import react-hot-toast
 import { AuthContext } from '../Firebase/AuthProvider';
 import { useContext } from 'react';
 import SingleBook from '../components/SingleBook';
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 const Shop = () => {
   const [books, setBooks] = useState([]);
@@ -138,13 +140,13 @@ const Shop = () => {
     fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
       .then((res) => res.json())
       .then((data) => {
-        // Ensure each book has an authorName property
         const booksWithAuthor = data.map(book => ({
           ...book, 
           authorName: book.authorName || 'Unknown'
         }));
         setBooks(booksWithAuthor);
         setFilteredBooks(booksWithAuthor);
+        setIsLoading(false);
       });
   }, []);
 
@@ -253,6 +255,23 @@ const Shop = () => {
   useEffect(() => {
     console.log("Current category:", category);
   }, [category]);
+
+  const BookCardSkeleton = () => (
+    <div className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden flex flex-col shadow-lg">
+      <div className="relative aspect-[2/3] bg-gray-100">
+        <Skeleton height="100%" />
+      </div>
+      <div className="p-4 border-t-2 border-gray-200 bg-gray-50">
+        <Skeleton width="80%" height={20} className="mb-1" />
+        <Skeleton width="60%" height={16} className="mb-1" />
+        <Skeleton width="40%" height={16} className="mb-2" />
+        <div className="flex justify-between items-center">
+          <Skeleton width={60} height={24} />
+          <Skeleton width={80} height={32} />
+        </div>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return <div>Loading...</div>; // Or a more sophisticated loading component
@@ -370,50 +389,52 @@ const Shop = () => {
         </button>
       </div>
 
-      {/* Updated Book grid with no white spaces around book cover */}
+      {/* Updated Book grid with skeleton loading */}
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 my-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-1">
-          {sortedBooks.map((book) => (
-            <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={(e) => handleBookClick(book, e)}>
-              <div className="relative aspect-[2/3] bg-gray-100">
-                <img
-                  src={book.imageURL}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  alt={book.bookTitle}
-                />
-                <button 
-                  className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(book);
-                  }}
-                >
-                  {isInCart(book._id) ? (
-                    <FaCheck className={`w-4 h-4 ${addedToCart[book._id] ? 'animate-bounce' : ''}`} />
-                  ) : (
-                    <FaShoppingCart className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-              <div className="p-4 border-t-2 border-gray-200 bg-gray-50">
-                <h4 className="text-base font-semibold text-gray-800 mb-1 truncate">
-                  {book.bookTitle}
-                </h4>
-                <p className="text-sm text-gray-600 mb-1 truncate">
-                  {book.author || book.authorName || 'Unknown'}
-                </p>
-                <p className="text-sm text-blue-600 mb-2">{book.category}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-base font-bold text-green-600">
-                    ${typeof book.price === 'number' ? book.price.toFixed(2) : parseFloat(book.price).toFixed(2) || '0.00'}
-                  </span>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1.5 px-3 rounded transition duration-200 ease-in-out">
-                    Buy Now
-                  </button>
+          {isLoading
+            ? Array(10).fill().map((_, index) => <BookCardSkeleton key={index} />)
+            : sortedBooks.map((book) => (
+                <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={(e) => handleBookClick(book, e)}>
+                  <div className="relative aspect-[2/3] bg-gray-100">
+                    <img
+                      src={book.imageURL}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      alt={book.bookTitle}
+                    />
+                    <button 
+                      className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(book);
+                      }}
+                    >
+                      {isInCart(book._id) ? (
+                        <FaCheck className={`w-4 h-4 ${addedToCart[book._id] ? 'animate-bounce' : ''}`} />
+                      ) : (
+                        <FaShoppingCart className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  <div className="p-4 border-t-2 border-gray-200 bg-gray-50">
+                    <h4 className="text-base font-semibold text-gray-800 mb-1 truncate">
+                      {book.bookTitle}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-1 truncate">
+                      {book.author || book.authorName || 'Unknown'}
+                    </p>
+                    <p className="text-sm text-blue-600 mb-2">{book.category}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-base font-bold text-green-600">
+                        ${typeof book.price === 'number' ? book.price.toFixed(2) : parseFloat(book.price).toFixed(2) || '0.00'}
+                      </span>
+                      <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1.5 px-3 rounded transition duration-200 ease-in-out">
+                        Buy Now
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
         </div>
       </div>
 
