@@ -143,10 +143,10 @@ function Cart() {
             <table className="w-full">
               <thead className="bg-gradient-to-r from-teal-400 to-teal-600 text-white">
                 <tr>
-                  <th className="px-6 py-3 mr-8 text-center text-xs font-medium uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-3 mr-4 text-center text-xs font-medium uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Product</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Price</th>
                   <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Quantity</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Total</th>
                   <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
