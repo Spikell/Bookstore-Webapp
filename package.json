@@ -1,0 +1,11 @@
+{
+  "name": "mern-bookstore",
+  "version": "1.0.0",
+  "description": "BookHaven is a modern web app for book lovers to buy, sell, and explore books.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
