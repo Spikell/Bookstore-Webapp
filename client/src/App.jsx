@@ -14,8 +14,8 @@ function App() {
   useEffect(() => {
     const makeApiCall = async () => {
       try {
-        console.log("Attempting to call API at:", `${import.meta.env.VITE_API_URL}/all-books`);
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-books`);
+        console.log("Attempting to call API at:", `${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books");
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books");
         console.log("API response:", response.data);
       } catch (error) {
         console.error("Error making API call:", error.message);
