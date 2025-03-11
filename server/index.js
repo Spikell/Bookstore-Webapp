@@ -28,7 +28,8 @@ const uri = process.env.MONGODB_URI;
 
 if (!uri) {
   console.error("MONGODB_URI is not set in the environment variables");
-  process.exit(1);
+  // Don't exit process in serverless environment
+  throw new Error("MongoDB URI is missing");
 }
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -40,108 +41,133 @@ const client = new MongoClient(uri, {
   },
 });
 
-async function run() {
+// Define a cached connection variable
+let cachedDb = null;
+
+// Function to connect to the database
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
+  
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    console.log("Connected to MongoDB");
-
-    //create a collection of documents for our database
-    const bookCollections = client.db("BookInventory").collection("books");
-
-    //insert a book to db: post method
-    app.post("/upload-book", async (req, res) => {
-      const data = req.body;
-      const result = await bookCollections.insertOne(data);
-      res.send(result);
-    });
-
-    //insert multiple books to db: post method
-    app.post("/upload-books", async (req, res) => {
-      const data = req.body;
-      const result = await bookCollections.insertMany(data);
-      res.send(result);
-    });
-
-    //update book data : patch or update methods
-    app.patch("/book/:id", async (req, res) => {
-      const id = req.params.id;
-      //console.log(id);
-      const updateBookData = req.body;
-      const filter = { _id: new ObjectId(id) };
-
-      const updateDoc = {
-        $set: {
-          ...updateBookData,
-        },
-      };
-      const options = { upsert: true };
-
-      //update
-      const result = await bookCollections.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
-
-    //delete book data from db
-    app.delete("/book/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const result = await bookCollections.deleteOne(filter);
-      res.send(result);
-    });
-
-    // find single book data with id
-    app.get("/book/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const result = await bookCollections.findOne(filter);
-      res.send(result);
-    });
-
-    // find book by category or title
-    app.get("/all-books", async (req, res) => {
-      try {
-        let query = {};
-        if (req.query?.category) {
-          query = { category: { $regex: new RegExp(req.query.category, "i") } };
-        }
-        if (req.query?.bookTitle) {
-          query = { bookTitle: { $regex: new RegExp(req.query.bookTitle, "i") } };
-        }
-        const result = await bookCollections.find(query).toArray();
-        res.send(result);
-      } catch (error) {
-        console.error("Error in /all-books route:", error);
-        res.status(500).send("An error occurred while fetching books");
-      }
-    });
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-
-    // Add a general error handler for all routes
-    app.use((err, req, res, next) => {
-      console.error("Unhandled error:", err);
-      res.status(500).send("An unexpected error occurred");
-    });
+    const db = client.db("BookInventory");
+    cachedDb = db;
+    return db;
   } catch (error) {
     console.error("Database connection error:", error);
-    process.exit(1);
+    throw error; // Don't exit process, just throw the error
   }
 }
 
-run().catch((error) => {
-  console.error("Unhandled error in run function:", error);
-  process.exit(1);
+// Define routes outside the connection function
+app.post("/upload-book", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    const data = req.body;
+    const result = await bookCollections.insertOne(data);
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /upload-book:", error);
+    res.status(500).send("An error occurred while uploading the book");
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.post("/upload-books", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    const data = req.body;
+    const result = await bookCollections.insertMany(data);
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /upload-books:", error);
+    res.status(500).send("An error occurred while uploading books");
+  }
 });
+
+app.patch("/book/:id", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    const id = req.params.id;
+    const updateBookData = req.body;
+    const filter = { _id: new ObjectId(id) };
+    const updateDoc = {
+      $set: {
+        ...updateBookData,
+      },
+    };
+    const options = { upsert: true };
+    const result = await bookCollections.updateOne(filter, updateDoc, options);
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /book/:id PATCH:", error);
+    res.status(500).send("An error occurred while updating the book");
+  }
+});
+
+app.delete("/book/:id", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await bookCollections.deleteOne(filter);
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /book/:id DELETE:", error);
+    res.status(500).send("An error occurred while deleting the book");
+  }
+});
+
+app.get("/book/:id", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await bookCollections.findOne(filter);
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /book/:id GET:", error);
+    res.status(500).send("An error occurred while fetching the book");
+  }
+});
+
+app.get("/all-books", async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const bookCollections = db.collection("books");
+    let query = {};
+    if (req.query?.category) {
+      query = { category: { $regex: new RegExp(req.query.category, "i") } };
+    }
+    if (req.query?.bookTitle) {
+      query = { bookTitle: { $regex: new RegExp(req.query.bookTitle, "i") } };
+    }
+    const result = await bookCollections.find(query).toArray();
+    res.send(result);
+  } catch (error) {
+    console.error("Error in /all-books route:", error);
+    res.status(500).send("An error occurred while fetching books");
+  }
+});
+
+// Add a general error handler for all routes
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).send("An unexpected error occurred");
+});
+
+// Only start the server if not in a serverless environment
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+// For serverless environments
+module.exports = app;
