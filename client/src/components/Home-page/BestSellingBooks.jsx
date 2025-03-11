@@ -5,9 +5,9 @@ const BestSellingBooks = ({ onBookSelect }) => {
     const [books, setBooks] = useState([]);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/all-books`)
+        fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
         .then(res => res.json())
-        .then(data => setBooks(data.slice(0, 8)))
+        .then(data => setBooks(data.slice(0, 20)))
     }, []);
 
     return (

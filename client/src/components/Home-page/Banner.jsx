@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import BannerCard from "./BannerCard";
 import { AuthContext } from '../../Firebase/AuthProvider';
-import toast from 'react-hot-toast'; // Import toast
+import toast from 'react-hot-toast'; 
 
 const Banner = ({ onBookSelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,7 +12,7 @@ const Banner = ({ onBookSelect }) => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books`)
+    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
       .then((res) => res.json())
       .then((data) => setAllBooks(data));
   }, []);
