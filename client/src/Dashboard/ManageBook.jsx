@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast'; // Add this import
+import toast, { Toaster } from 'react-hot-toast'; 
 
 
 const ManageBook = () => {
   const [allBooks, setAllBooks] = useState([]);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books`)
+    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
       .then((res) => res.json())
       .then((data) => setAllBooks(data));
   }, []);
 
   const handleDeleteBook = (id) => {
     console.log(id);
-    fetch(`${import.meta.env.VITE_API_URL}/book/${id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/book/${id}` || "http://localhost:5000/book/${id}", {
       method: "DELETE",
     })
       .then((res) => res.json())

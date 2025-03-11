@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books`)
+    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
