@@ -9,8 +9,9 @@ const FavBook = () => {
         <img src={favBook} alt="favBook" className="rounded md:w-10/12" />
       </div>
       <div className="md:w-1/2 space-y-6">
-        <h2 className="text-5xl font-bold my-5 w-3/4 leading-snug">
-          Find your favorite <span className="text-blue-700">books here</span>
+        <h2 className="text-5xl font-extrabold my-5 w-3/4 leading-snug relative">
+          <span className="bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">Find your favorite</span>
+          <span className="block mt-2 bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">books here</span>
         </h2>
         <p className="mb-10 text-lg md:w-5/6">
           Discover a wide range of books from various genres and authors. Whether you're looking for the latest bestsellers or timeless classics, we have something for every book lover.
