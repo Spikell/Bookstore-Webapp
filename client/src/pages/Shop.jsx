@@ -5,7 +5,7 @@ import { ImSearch } from "react-icons/im";
 import { VscSettings } from "react-icons/vsc";
 import { bookCategories } from "../data";
 import { HiSortAscending, HiSortDescending } from "react-icons/hi";
-import { FaShoppingCart, FaCheck } from "react-icons/fa"; // Add FaCheck import
+import { FaShoppingCart, FaCheck, FaSortAlphaDown, FaSortAmountDown, FaDollarSign } from "react-icons/fa"; // Add FaCheck import
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast'; // Import react-hot-toast
 import { AuthContext } from '../Firebase/AuthProvider';
@@ -18,6 +18,7 @@ const Shop = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchHistory, setSearchHistory] = useState([]);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
@@ -25,13 +26,19 @@ const Shop = () => {
   const categoryDropdownRef = useRef(null);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' for ascending, 'desc' for descending
+  const [sortConfig, setSortConfig] = useState({
+    field: 'price',
+    direction: 'asc',
+    secondaryField: null,
+    secondaryDirection: 'asc'
+  });
   const navigate = useNavigate();
   const [addedToCart, setAddedToCart] = useState({});
   const [cartItems, setCartItems] = useState([]);
-  const { user } = useContext(AuthContext); // Get the current user from AuthContext
+  const { user } = useContext(AuthContext);
   const [selectedBook, setSelectedBook] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const searchTimeoutRef = useRef(null);
 
   const pendingUpdatesRef = useRef([]);
   const updateTimeoutRef = useRef(null);
@@ -150,12 +157,80 @@ const Shop = () => {
       });
   }, []);
 
+  // Debounced search function
+  const debouncedSearch = (value) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      const filtered = books.filter((book) => {
+        const searchValue = value.toLowerCase();
+        return (
+          book.bookTitle.toLowerCase().includes(searchValue) ||
+          book.authorName.toLowerCase().includes(searchValue) ||
+          book.category.toLowerCase().includes(searchValue)
+        );
+      });
+      setFilteredBooks(filtered);
+      
+      // Add to search history if not already present
+      if (value.trim() !== '' && !searchHistory.includes(value.trim())) {
+        setSearchHistory(prev => [value.trim(), ...prev].slice(0, 5));
+      }
+    }, 300);
+  };
+
   useEffect(() => {
-    const filtered = books.filter((book) =>
-      book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) 
-    );
-    setFilteredBooks(filtered);
+    debouncedSearch(searchTerm);
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, [searchTerm, books]);
+
+  const handleSort = (field) => {
+    setSortConfig(prev => {
+      if (prev.field === field) {
+        // Simply toggle direction without changing field
+        return { ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      // When changing field, reset to ascending
+      return { ...prev, field, direction: 'asc' };
+    });
+  };
+
+  const sortedBooks = useMemo(() => {
+    const sorted = [...filteredBooks].sort((a, b) => {
+      let comparison = 0;
+      const aValue = a[sortConfig.field];
+      const bValue = b[sortConfig.field];
+
+      if (typeof aValue === 'string') {
+        comparison = aValue.localeCompare(bValue);
+      } else {
+        comparison = aValue - bValue;
+      }
+
+      if (comparison === 0 && sortConfig.secondaryField) {
+        const aSecondary = a[sortConfig.secondaryField];
+        const bSecondary = b[sortConfig.secondaryField];
+        
+        if (typeof aSecondary === 'string') {
+          comparison = aSecondary.localeCompare(bSecondary);
+        } else {
+          comparison = aSecondary - bSecondary;
+        }
+        
+        return sortConfig.secondaryDirection === 'desc' ? -comparison : comparison;
+      }
+
+      return sortConfig.direction === 'desc' ? -comparison : comparison;
+    });
+
+    return sorted;
+  }, [filteredBooks, sortConfig]);
 
   const toggleAdvancedSearch = () => {
     setShowAdvancedSearch(!showAdvancedSearch);
@@ -218,21 +293,6 @@ const Shop = () => {
     console.log('Search criteria:', { searchTerm, author, category, minPrice, maxPrice });
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
-  };
-
-  const sortedBooks = useMemo(() => {
-    console.log('Sorting books:', filteredBooks.length);
-    return [...filteredBooks].sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.price - b.price;
-      } else {
-        return b.price - a.price;
-      }
-    });
-  }, [filteredBooks, sortOrder, searchTerm, author, category, minPrice, maxPrice]);
-
   const isInCart = (bookId) => {
     return cartItems.some(item => item.id === bookId);
   };
@@ -290,15 +350,16 @@ const Shop = () => {
         }}
       />
       <h2 className="text-4xl font-bold text-center">All Books</h2>
-      {/* Search control */}
-      <div className="my-6 relative w-1/3 max-w-xl mx-auto">
+      
+      {/* Enhanced Search Control */}
+      <div className="my-6 relative w-full max-w-2xl mx-auto">
         <div className="relative">
           <input
             type="text"
-            placeholder="Search by title"
+            placeholder="Search by title, author, or category..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-xl  focus:ring-0 focus:ring-blue-400 focus:border-blue-400 duration-200"
+            className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-xl focus:ring-0 focus:ring-blue-400 focus:border-blue-400 duration-200"
           />
           <ImSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <VscSettings
@@ -306,40 +367,74 @@ const Shop = () => {
             onClick={toggleAdvancedSearch}
           />
         </div>
+
+        {/* Search History */}
+        {searchHistory.length > 0 && !showAdvancedSearch && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <div className="p-2">
+              <div className="text-sm text-gray-500 mb-1">Recent searches:</div>
+              {searchHistory.map((term, index) => (
+                <div
+                  key={index}
+                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer rounded-md flex items-center justify-between"
+                  onClick={() => setSearchTerm(term)}
+                >
+                  <span>{term}</span>
+                  <button
+                    className="text-gray-400 hover:text-gray-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchHistory(prev => prev.filter((_, i) => i !== index));
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         
-        <div className={`mt-4 bg-white border rounded-md shadow-md overflow-hidden transition-all duration-300 ease-in-out ${showAdvancedSearch ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+        {/* Enhanced Advanced Search */}
+        <div className={`mt-4 bg-white border rounded-md shadow-md overflow-hidden transition-all duration-300 ease-in-out ${showAdvancedSearch ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="p-4 space-y-4">
             <h3 className="text-lg font-semibold mb-2">Advanced Search</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
-              <div className="relative" ref={categoryDropdownRef}>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Author</label>
                 <input
                   type="text"
-                  placeholder="Select Category"
-                  value={category}
-                  onChange={handleCategoryChange}
-                  onFocus={() => setShowCategoryDropdown(true)}
+                  placeholder="Search by author"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
                   className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100"
                 />
-                {showCategoryDropdown && (
-                  <ul className="modern-scrollbar absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {filteredCategories.map((cat) => (
-                      <li
-                        key={cat.value}
-                        onClick={() => handleCategorySelect(cat)}
-                        className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
-                      >
-                        {cat.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Category</label>
+                <div className="relative" ref={categoryDropdownRef}>
+                  <input
+                    type="text"
+                    placeholder="Select Category"
+                    value={category}
+                    onChange={handleCategoryChange}
+                    onFocus={() => setShowCategoryDropdown(true)}
+                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  />
+                  {showCategoryDropdown && (
+                    <ul className="modern-scrollbar absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                      {filteredCategories.map((cat) => (
+                        <li
+                          key={cat.value}
+                          onClick={() => handleCategorySelect(cat)}
+                          className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
+                        >
+                          {cat.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
             <div className="space-y-2">
@@ -364,32 +459,69 @@ const Shop = () => {
                 />
               </div>
             </div>
-            <button
-              onClick={handleAdvancedSearch}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out transform  shadow-md hover:shadow-lg"
-            >
-              Apply Filters
-            </button>
+            <div className="flex justify-between items-center pt-4">
+              <button
+                onClick={() => {
+                  setAuthor('');
+                  setCategory('');
+                  setMinPrice('');
+                  setMaxPrice('');
+                }}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Clear filters
+              </button>
+              <button
+                onClick={handleAdvancedSearch}
+                className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-md transition duration-300 ease-in-out transform shadow-md hover:shadow-lg"
+              >
+                Apply Filters
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Sort button */}
-      <div className="flex justify-end my-4">
-        <button
-          onClick={toggleSortOrder}
-          className="flex items-center bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-md transition duration-200 ease-in-out"
-        >
-          Sort by Price
-          {sortOrder === 'asc' ? (
-            <HiSortAscending className="ml-2" />
-          ) : (
-            <HiSortDescending className="ml-2" />
-          )}
-        </button>
+      {/* Enhanced Sort Controls */}
+      <div className="flex flex-wrap justify-end gap-4 my-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleSort('bookTitle')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${
+              sortConfig.field === 'bookTitle' 
+                ? 'bg-blue-600 text-white border-blue-700 shadow-lg' 
+                : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'
+            }`}
+          >
+            <FaSortAlphaDown className={`w-4 h-4 ${
+              sortConfig.field === 'bookTitle' ? 'text-blue-100' : 'text-current'
+            }`} />
+            <span>Title</span>
+            {sortConfig.field === 'bookTitle' && (
+              <span className="text-sm">{sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'}</span>
+            )}
+          </button>
+
+          <button
+            onClick={() => handleSort('price')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${
+              sortConfig.field === 'price' 
+                ? 'bg-green-600 text-white border-green-700 shadow-lg' 
+                : 'bg-white text-gray-600 border-gray-300 hover:border-green-400 hover:text-green-600 hover:bg-green-50'
+            }`}
+          >
+            <FaDollarSign className={`w-4 h-4 ${
+              sortConfig.field === 'price' ? 'text-green-100' : 'text-current'
+            }`} />
+            <span>Price</span>
+            {sortConfig.field === 'price' && (
+              <span className="text-sm">{sortConfig.direction === 'asc' ? 'Low-High' : 'High-Low'}</span>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Updated Book grid with skeleton loading */}
+      {/* Book Grid */}
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 my-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-1">
           {isLoading
