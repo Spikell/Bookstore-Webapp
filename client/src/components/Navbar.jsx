@@ -1,12 +1,20 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, NavLink } from "react-router-dom";
 import {
   FaBarsStaggered,
   FaBlog,
   FaXmark,
   FaChevronDown,
 } from "react-icons/fa6";
-import { FaShoppingCart, FaHome, FaInfoCircle, FaStore, FaSignOutAlt, FaSignInAlt, FaBook } from "react-icons/fa";
+import {
+  FaShoppingCart,
+  FaHome,
+  FaInfoCircle,
+  FaStore,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaBook,
+} from "react-icons/fa";
 import { Flowbite, DarkThemeToggle, useThemeMode } from "flowbite-react";
 import {
   getAuth,
@@ -79,11 +87,26 @@ const Navbar = () => {
 
   //nav items
   const navItems = [
-    { link: "Home", path: "/", icon: <FaHome className="inline-block mr-1" /> },
-    { link: "Shop", path: "/shop", icon: <FaStore className="inline-block mr-1" /> },
-    { link: "Cart", path: "/cart", icon: <FaShoppingCart className="inline-block mr-1" /> },
-    { link: "Sell your book", path: "/admin/dashboard", icon: <FaBook className="inline-block mr-1" /> },
-    { link: "About", path: "/about", icon: <FaInfoCircle className="inline-block mr-1" /> },
+    { 
+      link: "Home", 
+      path: "/"
+    },
+    {
+      link: "Shop",
+      path: "/shop"
+    },
+    {
+      link: "Cart",
+      path: "/cart"
+    },
+    {
+      link: "Sell your book",
+      path: "/admin/dashboard"
+    },
+    {
+      link: "About",
+      path: "/about"
+    },
   ];
   return (
     <header className="w-full bg-transparent fixed top-0 left-0 right-0 transition-all ease-in duration-300 z-50">
@@ -104,22 +127,20 @@ const Navbar = () => {
           </Link>
 
           {/* nav items for large devices */}
-          <ul className="md:flex space-x-12 hidden">
-            {navItems.map(({ link, path, icon }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`block text-base uppercase cursor-pointer flex items-center
-                   hover:text-blue-700 transition-colors duration-300
-                   ${
-                     location.pathname === path
-                       ? "text-blue-700 font-semibold"
-                       : "text-black"
-                   }`}
-              >
-                {icon}
-                {link}
-              </Link>
+          <ul className="md:flex space-x-4 hidden">
+            {navItems.map(({ link, path }) => (
+              <li key={link}>
+                <NavLink
+                  to={path}
+                  className={({ isActive }) => `px-4 py-2 rounded-lg transition-all
+                    ${isActive 
+                      ? 'text-blue-700 font-bold' 
+                      : 'text-black hover:text-blue-600'}`
+                  }
+                >
+                  <span className="text-sm md:text-base">{link}</span>
+                </NavLink>
+              </li>
             ))}
           </ul>
 
@@ -135,12 +156,13 @@ const Navbar = () => {
                   <FaChevronDown className="ml-2 h-4 w-4" />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden">
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition duration-200 flex items-center"
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors duration-200 flex items-center"
                     >
-                      <FaSignOutAlt className="mr-2" /> Logout
+                      <FaSignOutAlt className="mr-2 text-gray-600" /> 
+                      <span className="font-medium">Logout</span>
                     </button>
                   </div>
                 )}
@@ -176,27 +198,26 @@ const Navbar = () => {
             isMenuOpen ? "block fixed top-0 right-0 left-0" : "hidden"
           }`}
         >
-          {navItems.map(({ link, path, icon }) => (
+          {navItems.map(({ link, path }) => (
             <Link
               key={path}
               to={path}
-              className="block text-base text-white uppercase cursor-pointer flex items-center"
+              className="text-base text-white uppercase cursor-pointer block"
             >
-              {icon}
               {link}
             </Link>
           ))}
           {user ? (
             <button
               onClick={handleLogout}
-              className="block text-base text-white uppercase cursor-pointer flex items-center"
+              className="text-base text-white uppercase cursor-pointer flex items-center"
             >
               <FaSignOutAlt className="mr-2" /> Logout
             </button>
           ) : (
             <Link
               to="/login"
-              className="block text-base text-white uppercase cursor-pointer flex items-center"
+              className="text-base text-white uppercase cursor-pointer flex items-center"
             >
               <FaSignInAlt className="mr-2" /> Login
             </Link>
