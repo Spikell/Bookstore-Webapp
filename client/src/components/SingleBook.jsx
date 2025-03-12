@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { FaTimes, FaShoppingCart } from "react-icons/fa";
+import { FaTimes, FaShoppingCart, FaBook, FaUser, FaTag, FaDollarSign, FaExternalLinkAlt } from "react-icons/fa";
 import { AuthContext } from '../Firebase/AuthProvider';
 import toast from 'react-hot-toast';
 
@@ -48,7 +48,7 @@ const SingleBook = ({ book, onClose, addToCart }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden p-0 flex flex-col md:flex-row" style={{ height: '60vh' }}>
+    <div className="bg-white rounded-lg overflow-hidden p-0 flex flex-col md:flex-row shadow-xl" style={{ height: '60vh' }}>
       <div className="md:w-1/3 flex items-center justify-center bg-gray-100">
         <img
           src={book.imageURL}
@@ -56,24 +56,36 @@ const SingleBook = ({ book, onClose, addToCart }) => {
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="md:w-2/3 p-4 flex flex-col h-full relative">
+      <div className="md:w-2/3 p-6 flex flex-col h-full relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-200"
         >
           <FaTimes size={24} />
         </button>
         <div className="flex-grow flex flex-col overflow-hidden">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">{book.bookTitle}</h2>
-          <p className="text-xl text-gray-600 mb-1">By {book.authorName}</p>
-          <p className="text-lg text-blue-600 mb-4">{book.category}</p>
+          <div className="flex items-center mb-2">
+            {/* <FaBook className="text-blue-600 mr-2" size={20} />  */}
+            <h2 className="text-3xl font-bold text-gray-800">{book.bookTitle}</h2>
+          </div>
+          <div className="flex items-center mb-1">
+            <FaUser className="text-gray-600 mr-2" size={16} />
+            <p className="text-xl text-gray-600">{book.authorName}</p>
+          </div>
+          <div className="flex items-center mb-4">
+            <FaTag className="text-blue-600 mr-2" size={16} />
+            <p className="text-lg text-blue-600">{book.category}</p>
+          </div>
           <div className="flex-grow overflow-y-auto pr-4 mb-4 custom-scrollbar">
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{book.description}</p>
           </div>
         </div>
         <div className="mt-2">
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-green-600">${parseFloat(book.price).toFixed(2)}</p>
+            <div className="flex items-center">
+              <FaDollarSign className="text-green-600 mr-1" size={18} />
+              <p className="text-2xl font-bold text-green-600">{parseFloat(book.price).toFixed(2)}</p>
+            </div>
             <div className="flex space-x-4">
               <button
                 onClick={handleAddToCart}
@@ -84,8 +96,9 @@ const SingleBook = ({ book, onClose, addToCart }) => {
               </button>
               <button
                 onClick={() => window.open(book.bookPDFURL, "_blank")}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-semibold hover:bg-green-700 transition duration-200"
+                className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-semibold hover:bg-green-700 transition duration-200"
               >
+                <FaExternalLinkAlt className="mr-2" />
                 Buy Now
               </button>
             </div>
