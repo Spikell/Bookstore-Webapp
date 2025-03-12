@@ -1,10 +1,34 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
-import { FaPlus, FaMinus, FaTrash } from 'react-icons/fa';
-import { useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../Firebase/AuthProvider';
-import { db } from '../Firebase/firebase.config';
-import { doc, setDoc, collection, writeBatch } from 'firebase/firestore';
-import toast from 'react-hot-toast';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
+import {
+  FaPlus,
+  FaMinus,
+  FaTrash,
+  FaShoppingCart,
+  FaArrowLeft,
+  FaCreditCard,
+  FaMoneyBill,
+  FaShoppingBag,
+  FaExclamationCircle,
+  FaUser,
+  FaTag,
+  FaBook,
+  FaReceipt,
+  FaPercentage,
+  FaTruck,
+  FaMoneyCheckAlt,
+  FaShieldAlt,
+} from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { AuthContext } from "../Firebase/AuthProvider";
+import { db } from "../Firebase/firebase.config";
+import { doc, setDoc, collection, writeBatch } from "firebase/firestore";
+import toast, { Toaster } from "react-hot-toast";
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -18,13 +42,14 @@ function Cart() {
   useEffect(() => {
     if (!loading && user) {
       loadCart();
-      window.addEventListener('cartUpdated', handleCartUpdate);
-      return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.addEventListener("cartUpdated", handleCartUpdate);
+      return () => window.removeEventListener("cartUpdated", handleCartUpdate);
     }
   }, [user, loading]);
 
   const loadCart = () => {
-    const storedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+    const storedCart =
+      JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
     setCartItems(storedCart);
   };
 
@@ -38,7 +63,7 @@ function Cart() {
     if (user) {
       const batch = writeBatch(db);
       const userCartRef = doc(collection(db, "cart data"), user.uid);
-      
+
       try {
         const cartData = updatedCart.map(({ imageURL, ...item }) => ({
           authorName: item.authorName,
@@ -46,9 +71,9 @@ function Cart() {
           category: item.category,
           price: item.price,
           quantity: item.quantity,
-          id: item.id
+          id: item.id,
         }));
-        
+
         batch.set(userCartRef, { items: cartData }, { merge: true });
         await batch.commit();
         console.log("Cart updated in Firestore");
@@ -61,186 +86,303 @@ function Cart() {
 
   const processPendingUpdates = useCallback(() => {
     if (pendingUpdatesRef.current.length > 0) {
-      const updatedCart = pendingUpdatesRef.current.reduce((acc, update) => {
-        if (update.removed) {
-          return acc.filter(item => item.id !== update.id);
-        }
-        const existingItemIndex = acc.findIndex(item => item.id === update.id);
-        if (existingItemIndex !== -1) {
-          acc[existingItemIndex] = { ...acc[existingItemIndex], ...update };
-        }
-        return acc;
-      }, [...cartItems]);
+      const updatedCart = pendingUpdatesRef.current.reduce(
+        (acc, update) => {
+          if (update.removed) {
+            return acc.filter((item) => item.id !== update.id);
+          }
+          const existingItemIndex = acc.findIndex(
+            (item) => item.id === update.id
+          );
+          if (existingItemIndex !== -1) {
+            acc[existingItemIndex] = { ...acc[existingItemIndex], ...update };
+          }
+          return acc;
+        },
+        [...cartItems]
+      );
 
       setCartItems(updatedCart);
       localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
-      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
+      window.dispatchEvent(
+        new CustomEvent("cartUpdated", {
+          detail: { cart: updatedCart, userId: user.uid },
+        })
+      );
       updateFirestoreCart(updatedCart);
       pendingUpdatesRef.current = [];
     }
   }, [cartItems, user]);
 
-  const queueUpdate = useCallback((itemId, changes) => {
-    pendingUpdatesRef.current.push({ id: itemId, ...changes });
-    
-    // Update local state immediately
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId ? { ...item, ...changes } : item
-      )
-    );
+  const queueUpdate = useCallback(
+    (itemId, changes) => {
+      pendingUpdatesRef.current.push({ id: itemId, ...changes });
 
-    // Clear existing timeout and set a new one
-    if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
-    updateTimeoutRef.current = setTimeout(processPendingUpdates, BATCH_INTERVAL);
-  }, [processPendingUpdates]);
+      // Update local state immediately
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, ...changes } : item
+        )
+      );
 
-  const removeItem = useCallback((itemId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
-    queueUpdate(itemId, { removed: true });
-    toast.success('Item removed from cart');
-  }, [queueUpdate]);
+      // Clear existing timeout and set a new one
+      if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = setTimeout(
+        processPendingUpdates,
+        BATCH_INTERVAL
+      );
+    },
+    [processPendingUpdates]
+  );
 
-  const updateQuantity = useCallback((itemId, change) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
-    queueUpdate(itemId, { quantity: Math.max(1, cartItems.find(item => item.id === itemId).quantity + change) });
-    toast.success('Cart updated');
-  }, [cartItems, queueUpdate]);
+  const removeItem = useCallback(
+    (itemId) => {
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => item.id !== itemId)
+      );
+      queueUpdate(itemId, { removed: true });
+      toast.success("Item removed from cart");
+    },
+    [queueUpdate]
+  );
 
-  useEffect(() => {
-    const newTotal = cartItems.reduce((sum, item) => {
-      const itemPrice = typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0;
+  const clearCart = useCallback(() => {
+    if (user) {
+      setCartItems([]);
+      localStorage.setItem(`cart_${user.uid}`, JSON.stringify([]));
+      window.dispatchEvent(
+        new CustomEvent("cartUpdated", {
+          detail: { cart: [], userId: user.uid },
+        })
+      );
+      updateFirestoreCart([]);
+      toast.success("Cart cleared successfully");
+    }
+  }, [user]);
+
+  const incrementQuantity = useCallback(
+    (itemId) => {
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      );
+      queueUpdate(itemId, {
+        quantity: cartItems.find((item) => item.id === itemId).quantity + 1,
+      });
+    },
+    [cartItems, queueUpdate]
+  );
+
+  const decrementQuantity = useCallback(
+    (itemId) => {
+      const item = cartItems.find((item) => item.id === itemId);
+      if (item && item.quantity > 1) {
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item
+          )
+        );
+        queueUpdate(itemId, { quantity: item.quantity - 1 });
+      }
+    },
+    [cartItems, queueUpdate]
+  );
+
+  const calculateSubtotal = useCallback(() => {
+    return cartItems.reduce((sum, item) => {
+      const itemPrice =
+        typeof item.price === "number"
+          ? item.price
+          : parseFloat(item.price) || 0;
       return sum + itemPrice * item.quantity;
     }, 0);
-    setTotal(newTotal);
   }, [cartItems]);
 
+  const handleCheckout = useCallback(() => {
+    toast.success("Checkout functionality will be implemented soon!");
+    // Future implementation for checkout process
+  }, []);
+
+  useEffect(() => {
+    const newTotal = calculateSubtotal();
+    setTotal(newTotal);
+  }, [cartItems, calculateSubtotal]);
+
   return (
-    <div className="container mx-auto mt-10 p-4">
-      <h2 className="text-2xl font-bold mb-6 text-center mt-10">Your Cart</h2>
+    <div className="mt-20 px-4 lg:px-16 xl:px-24 mb-16 max-w-screen-2xl mx-auto">
+      <Toaster position="top-center" reverseOrder={false} />
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-blue-700 flex items-center justify-center">
+        <FaShoppingCart className="mr-3 text-blue-600" />
+        Your Shopping Cart
+      </h2>
+
       {loading ? (
-        <p className="text-xl text-gray-600 text-center mt-40">Loading...</p>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
       ) : !user ? (
-        <div className="flex flex-col items-center justify-center h-screen pb-24">
-          <div className="text-center">
-            <p className="text-xl text-gray-600 mb-4">Please log in to use the cart functionality</p>
-            <Link to="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-block">
-              Log In
-            </Link>
-          </div>
+        <div className="text-center py-16 bg-gray-50 rounded-lg shadow-md border border-gray-200">
+          <FaExclamationCircle className="mx-auto text-yellow-500 text-5xl mb-4" />
+          <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+            Please log in to view your cart
+          </h3>
+          <Link
+            to="/login"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium"
+          >
+            <FaShoppingBag className="mr-2" /> Go to Login
+          </Link>
         </div>
       ) : cartItems.length === 0 ? (
-        <p className="text-xl text-gray-600 text-center mt-40">Your cart is empty</p>
+        <div className="text-center py-20 bg-gray-50 rounded-lg shadow-md border border-gray-200">
+          <FaShoppingCart className="mx-auto text-gray-300 text-7xl mb-6" />
+          <h3 className="text-2xl font-semibold text-gray-700 mb-5">
+            Your cart is empty
+          </h3>
+          <Link
+            to="/shop"
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium text-lg"
+          >
+            <FaShoppingBag className="mr-2" /> Continue Shopping
+          </Link>
+        </div>
       ) : (
-        <>
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-teal-400 to-teal-600 text-white">
-                <tr>
-                  <th className="pl-14 py-3 text-left text-xs font-medium uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Quantity</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {cartItems.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img src={item.imageURL} alt={item.bookTitle} className="h-20 w-16 object-cover mr-4 rounded" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{item.bookTitle}</div>
-                          <div className="text-sm text-gray-500">{item.authorName}</div>
-                          <div className="text-xs text-gray-400">{item.category}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-green-600">
-                        ${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2) || '0.00'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center justify-center">
-                        <button 
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded-l transition duration-200"
-                          disabled={item.quantity <= 1}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+              <div className="p-5 bg-blue-50 border-b border-gray-200 flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Cart Items ({cartItems.length})
+                </h3>
+                <button
+                  onClick={clearCart}
+                  className="text-red-500 hover:text-red-700 flex items-center transition duration-200 bg-white py-1.5 px-3 rounded-md border border-red-200 hover:bg-red-50"
+                >
+                  <FaTrash className="mr-2" /> Clear All
+                </button>
+              </div>
+              <div className="divide-y divide-gray-200">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    <div className="w-24 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden border border-gray-200">
+                      <img
+                        src={item.imageURL}
+                        alt={item.bookTitle}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-xl font-semibold text-gray-800 mb-1 flex items-center">
+                        {item.bookTitle}
+                      </h4>
+                      <p className="text-md text-gray-600 mb-1 flex items-center">
+                        <FaUser className="mr-2 text-gray-500" size={14} />
+                        <span>{item.authorName}</span>
+                      </p>
+                      <p className="text-sm text-blue-600 font-medium px-2 py-0.5 bg-blue-50 rounded-full inline-flex items-center">
+                        <FaTag className="mr-1 text-blue-500" size={12} />
+                        {item.category}
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
+                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                        <button
+                          onClick={() => decrementQuantity(item.id)}
+                          className="px-3 py-2.5 w-12 h-10 flex items-center justify-center hover:bg-gray-200 hover:text-red-600 active:bg-gray-300 transition-all duration-200 ease-in-out"
+                          aria-label="Decrease quantity"
                         >
-                          <FaMinus />
+                          <FaMinus size={12} />
                         </button>
-                        <span className="mx-3 w-8 text-center bg-gray-100 py-1">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded-r transition duration-200"
+                        <span className="px-4 py-1.5 font-medium min-w-[40px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => incrementQuantity(item.id)}
+                          className="px-3 py-2.5 w-12 h-10 flex items-center justify-center hover:bg-gray-200 hover:text-green-600 active:bg-gray-300 transition-all duration-200 ease-in-out"
+                          aria-label="Increase quantity"
                         >
-                          <FaPlus />
+                          <FaPlus size={12} />
                         </button>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-medium text-green-600">
-                        ${((typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0) * item.quantity).toFixed(2)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button 
+                      <p className="text-xl font-bold text-green-600 min-w-[80px] text-center">
+                        ${parseFloat(item.price).toFixed(2)}
+                      </p>
+                      <button
                         onClick={() => removeItem(item.id)}
-                        className="text-white bg-red-500 hover:bg-red-600 p-2 rounded transition duration-200"
+                        className="text-red-500 hover:text-red-700 flex items-center justify-center transition duration-200 p-2 rounded-full hover:bg-red-100 w-10 h-10"
+                        aria-label="Remove item"
                       >
-                        <FaTrash />
+                        <FaTrash size={16} />
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-8 flex justify-end">
-            <div className="bg-gray-100 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
-              <div className="flex justify-between mb-2">
-                <span>Subtotal</span>
-                <span>${total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between mb-2">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between">
-                  <span className="font-bold">Total</span>
-                  <span className="font-bold">${total.toFixed(2)}</span>
-                </div>
-              </div>
-              <button className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">
-                Proceed to Checkout
-              </button>
             </div>
           </div>
-        </>
-      )}
-      <style jsx="true" global="true">{`
-        /* Chrome, Safari, Edge, Opera */
-        input[type=number].no-spinner::-webkit-inner-spin-button,
-        input[type=number].no-spinner::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
 
-        /* Firefox */
-        input[type=number].no-spinner {
-          -moz-appearance: textfield;
-        }
-      `}</style>
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-28 border border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800 mb-5 pb-4 border-b border-gray-200 flex items-center">
+                <FaReceipt className="mr-2 text-blue-600" size={18} />
+                Order Summary
+              </h3>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 flex items-center">
+                    <FaShoppingCart className="mr-2 text-gray-500" size={14} />
+                    Subtotal
+                  </span>
+                  <span className="font-medium text-lg">
+                    ${calculateSubtotal().toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 flex items-center">
+                    <FaPercentage className="mr-2 text-gray-500" size={14} />
+                    Tax (10%)
+                  </span>
+                  <span className="font-medium text-lg">
+                    ${(calculateSubtotal() * 0.1).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 flex items-center">
+                    <FaTruck className="mr-2 text-gray-500" size={14} />
+                    Shipping
+                  </span>
+                  <span className="font-medium text-lg">$5.00</span>
+                </div>
+                <div className="pt-4 mt-2 border-t border-gray-200 flex justify-between items-center">
+                  <span className="text-lg font-semibold flex items-center">
+                    <FaMoneyCheckAlt className="mr-2 text-blue-600" size={16} />
+                    Total
+                  </span>
+                  <span className="text-2xl font-bold text-blue-700">
+                    ${(calculateSubtotal() * 1.1 + 5).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center font-semibold text-lg shadow-sm"
+              >
+                <FaCreditCard className="mr-2" /> Proceed to Checkout
+              </button>
+              <Link
+                to="/shop"
+                className="w-full mt-4 bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition duration-300 flex items-center justify-center border border-gray-300"
+              >
+                <FaArrowLeft className="mr-2" /> Continue Shopping
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
