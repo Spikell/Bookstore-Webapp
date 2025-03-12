@@ -5,7 +5,8 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
+import "swiper/css/navigation";
+import { Pagination, Navigation } from "swiper/modules";
 
 const BestSellingBooks = ({ onBookSelect }) => {
     const [books, setBooks] = useState([]);
@@ -22,14 +23,18 @@ const BestSellingBooks = ({ onBookSelect }) => {
     }, []);
 
     const SkeletonBookCard = () => (
-        <div className="bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden">
-            <div className="relative aspect-[2/3] bg-gray-100">
+        <div className="bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden h-[480px] w-full flex flex-col">
+            <div className="h-[320px] w-full overflow-hidden">
                 <Skeleton height="100%" />
             </div>
-            <div className="p-4">
-                <Skeleton width="80%" height={24} className="mb-2" />
-                <Skeleton width="60%" height={20} className="mb-1" />
-                <Skeleton width="40%" height={20} />
+            <div className="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <Skeleton width="80%" height={28} className="mb-2" />
+                    <Skeleton width="60%" height={20} className="mb-1" />
+                </div>
+                <div className="mt-2">
+                    <Skeleton width="40%" height={20} />
+                </div>
             </div>
         </div>
     );
@@ -45,12 +50,18 @@ const BestSellingBooks = ({ onBookSelect }) => {
                         slidesPerView={1}
                         spaceBetween={10}
                         pagination={{ clickable: true }}
+                        navigation={{
+                            nextEl: '.swiper-button-next-bestselling',
+                            prevEl: '.swiper-button-prev-bestselling',
+                            disabledClass: 'swiper-button-disabled',
+                            hiddenClass: 'swiper-button-hidden'
+                        }}
                         breakpoints={{
                             640: { slidesPerView: 2, spaceBetween: 20 },
                             768: { slidesPerView: 4, spaceBetween: 40 },
                             1024: { slidesPerView: 5, spaceBetween: 50 },
                         }}
-                        modules={[Pagination]}
+                        modules={[Pagination, Navigation]}
                     >
                         {[...Array(5)].map((_, index) => (
                             <SwiperSlide key={index}>
@@ -58,6 +69,56 @@ const BestSellingBooks = ({ onBookSelect }) => {
                             </SwiperSlide>
                         ))}
                     </Swiper>
+                    <div className="swiper-button-prev-bestselling"></div>
+                    <div className="swiper-button-next-bestselling"></div>
+                    <style>
+                        {`
+                            .swiper-button-next-bestselling,
+                            .swiper-button-prev-bestselling {
+                                color: #1d4ed8;
+                                background-color: rgba(255, 255, 255, 0.8);
+                                border-radius: 50%;
+                                width: 40px;
+                                height: 40px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                position: absolute;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                z-index: 10;
+                                cursor: pointer;
+                            }
+                            .swiper-button-prev-bestselling {
+                                left: 10px;
+                            }
+                            .swiper-button-next-bestselling {
+                                right: 10px;
+                            }
+                            .swiper-button-next-bestselling:after,
+                            .swiper-button-prev-bestselling:after {
+                                font-size: 18px;
+                                font-weight: bold;
+                                content: '';
+                            }
+                            .swiper-button-next-bestselling:after {
+                                content: '→';
+                            }
+                            .swiper-button-prev-bestselling:after {
+                                content: '←';
+                            }
+                            .swiper-button-disabled {
+                                opacity: 0;
+                                cursor: auto;
+                                pointer-events: none;
+                                visibility: hidden;
+                            }
+                            .swiper-button-hidden {
+                                opacity: 0;
+                                visibility: hidden;
+                            }
+                        `}
+                    </style>
                 </div>
             ) : (
                 <BookCards books={books} headline="Best Selling Books" onBookSelect={onBookSelect} />
