@@ -2,10 +2,12 @@ import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Firebase/AuthProvider";
 import { toast } from 'react-hot-toast'; // Add this import
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Add this import
 
 const Login = () => {
   const { login, loginWithGoogle } = useContext(AuthContext);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Add this state
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,12 +109,26 @@ const Login = () => {
                 >
                   Password*
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Enter a password"
-                  className="flex items-center w-full px-5 py-4 mb-5 mr-2 text-sm font-medium outline-none focus:bg-gray-100 placeholder:text-gray-700 bg-gray-200 text-dark-gray-900 rounded-2xl"
-                />
+                <div className="relative mb-5">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter a password"
+                    className="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-gray-100 placeholder:text-gray-700 bg-gray-200 text-dark-gray-900 rounded-2xl pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="w-5 h-5" />
+                    ) : (
+                      <FaEye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
                 <div className="flex flex-row justify-between mb-6">
                   {/* <label className="relative inline-flex items-center mr-3 cursor-pointer select-none">
                     <input
