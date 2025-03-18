@@ -86,7 +86,7 @@ const UploadBook = () => {
 
   return (
     <div className="px-4  my-8">
-      <h2 className="mb-8 ml-20 mr-48 text-3xl font-bold  text-center tracking-tight">Upload Book</h2>
+      <h2 className="mb-8 ml-20 mr-48 text-3xl font-bold text-center tracking-tight bg-gradient-to-r from-teal-600 to-cyan-500 text-transparent bg-clip-text">Upload Book</h2>
       <form
         onSubmit={handleBookSubmit}
         className="flex flex-col lg:w-[1180px] flex-wrap gap-4"

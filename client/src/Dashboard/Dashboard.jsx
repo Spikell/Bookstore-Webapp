@@ -357,7 +357,7 @@ const Dashboard = () => {
   return (
     <div className="p-5 bg-gray-50 min-h-screen">
       <header className="mb-6">
-        <h1 className="text-3xl font-bold text-center tracking-tight text-gray-800 mb-2">
+        <h1 className="text-3xl font-bold text-center tracking-tight mb-2 bg-gradient-to-r from-teal-600 to-cyan-500 text-transparent bg-clip-text">
           BookHaven Dashboard
         </h1>
         <div className="flex justify-center mb-4">

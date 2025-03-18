@@ -208,7 +208,7 @@ const ManageBook = () => {
 
   return (
     <div className="container mx-auto px-4 my-8">
-      <h1 className="text-3xl font-bold mb-6 text-black tracking-tight text-center">Manage Your Books</h1>
+      <h1 className="text-3xl font-bold mb-6 tracking-tight text-center bg-gradient-to-r from-teal-600 to-cyan-500 text-transparent bg-clip-text">Manage Your Books</h1>
       
       {/* Search and Filter Controls */}
       <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
