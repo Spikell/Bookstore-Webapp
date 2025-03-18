@@ -23,6 +23,7 @@ import {
 } from "firebase/auth";
 import { AuthContext } from "../Firebase/AuthProvider";
 import { Toaster, toast } from "react-hot-toast";
+import bookhavenLogo from "../assets/bookhaven-logo.svg";
 
 const Navbar = () => {
   const location = useLocation();
@@ -122,7 +123,7 @@ const Navbar = () => {
             to="/"
             className="text-2xl font-bold text-blue-700 flex items-center gap-2"
           >
-            <FaBlog className="inline-block" />
+            <img src={bookhavenLogo} alt="BookHaven Logo" className="h-10 w-10" />
             BookHaven
           </Link>
 
