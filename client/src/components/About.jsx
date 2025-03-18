@@ -6,7 +6,6 @@ function About() {
   return (
     <div className="mt-28 py-8 px-4 lg:px-24 max-w-5xl mx-auto">
       <h2 className="text-4xl font-bold text-center mb-6 text-blue-700 flex items-center justify-center">
-        <FaInfoCircle className="mr-3" />
         About Our Bookstore
       </h2>
 
