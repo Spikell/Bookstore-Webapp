@@ -212,8 +212,7 @@ function Cart() {
   return (
     <div className="mt-20 px-4 lg:px-16 xl:px-24 mb-16 max-w-screen-2xl mx-auto">
       <Toaster position="top-center" reverseOrder={false} />
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-blue-700 flex items-center justify-center">
-        <FaShoppingCart className="mr-3 text-blue-600" />
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-blue-700">
         Your Shopping Cart
       </h2>
 
@@ -251,7 +250,7 @@ function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-              <div className="p-5 bg-blue-50 border-b border-gray-200 flex justify-between items-center">
+              <div className="p-5 bg-indigo-300 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-800">
                   Cart Items ({cartItems.length})
                 </h3>

@@ -349,7 +349,7 @@ const Shop = () => {
           },
         }}
       />
-      <h2 className="text-4xl font-bold text-center">All Books</h2>
+      <h2 className="text-4xl font-bold text-center text-blue-700">All Books</h2>
       
       {/* Enhanced Search Control */}
       <div className="my-6 relative w-full max-w-2xl mx-auto">
@@ -487,7 +487,7 @@ const Shop = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleSort('bookTitle')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-all duration-200 ${
               sortConfig.field === 'bookTitle' 
                 ? 'bg-blue-600 text-white border-blue-700 shadow-lg' 
                 : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'
@@ -504,7 +504,7 @@ const Shop = () => {
 
           <button
             onClick={() => handleSort('price')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-all duration-200 ${
               sortConfig.field === 'price' 
                 ? 'bg-green-600 text-white border-green-700 shadow-lg' 
                 : 'bg-white text-gray-600 border-gray-300 hover:border-green-400 hover:text-green-600 hover:bg-green-50'
