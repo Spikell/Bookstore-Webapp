@@ -13,13 +13,13 @@ const BestSellingBooks = ({ onBookSelect }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
-        .then(res => res.json())
-        .then(data => {
-            setBooks(data.slice(0, 10));
-            setIsLoading(false);
-        })
-        .catch(() => setIsLoading(false));
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/all-books`)
+            .then(res => res.json())
+            .then(data => {
+                setBooks(data.slice(0, 10));
+                setIsLoading(false);
+            })
+            .catch(() => setIsLoading(false));
     }, []);
 
     const SkeletonBookCard = () => (

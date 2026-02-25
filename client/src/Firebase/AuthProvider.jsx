@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         <div className="dot"></div>
         <div className="dot"></div>
         <div className="dot"></div>
-        <style jsx>{`
+        <style>{`
           .loading-dots {
             display: flex;
             justify-content: center;

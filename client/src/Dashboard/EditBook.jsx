@@ -4,12 +4,12 @@ import { Textarea } from "flowbite-react";
 import { bookCategories } from "../data";
 import toast, { Toaster } from 'react-hot-toast';
 import Select from "react-select";
-import "./CatScrollBar.css"; 
+import "./CatScrollBar.css";
 
 const EditBook = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [bookData, setBookData] = useState({
     bookTitle: '',
     authorName: '',
@@ -26,7 +26,7 @@ const EditBook = () => {
 
   useEffect(() => {
     // Fetch book data when component mounts
-    fetch(`${import.meta.env.VITE_API_URL}/book/${id}` || "http://localhost:5000/book/${id}")
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/book/${id}`)
       .then(res => res.json())
       .then(data => {
         setBookData(data);
@@ -83,7 +83,7 @@ const EditBook = () => {
     };
 
     // Update the fetch request
-    fetch(`${import.meta.env.VITE_API_URL}/book/${id}` || "http://localhost:5000/book/${id}", {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/book/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

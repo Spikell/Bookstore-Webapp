@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import BannerCard from "./BannerCard";
 import { AuthContext } from '../../Firebase/AuthProvider';
-import toast from 'react-hot-toast'; 
+import toast from 'react-hot-toast';
 
 const Banner = ({ onBookSelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,7 +12,7 @@ const Banner = ({ onBookSelect }) => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/all-books`)
       .then((res) => res.json())
       .then((data) => setAllBooks(data));
   }, []);
@@ -28,9 +28,9 @@ const Banner = ({ onBookSelect }) => {
   // search for books
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
-      const filteredBooks = allBooks.filter(book => 
+      const filteredBooks = allBooks.filter(book =>
         book.bookTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.authorName.toLowerCase().includes(searchQuery.toLowerCase()) 
+        book.authorName.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setSearchResults(filteredBooks);
       setShowResults(true);
@@ -54,9 +54,9 @@ const Banner = ({ onBookSelect }) => {
 
     const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
     const existingItemIndex = existingCart.findIndex(item => item.id === book._id);
-    
+
     const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
-    
+
     // Convert image URL to base64
     const imageBlob = await fetch(book.imageURL).then(r => r.blob());
     const base64Image = await new Promise((resolve) => {
@@ -64,7 +64,7 @@ const Banner = ({ onBookSelect }) => {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(imageBlob);
     });
-    
+
     if (existingItemIndex !== -1) {
       existingCart[existingItemIndex].quantity += 1;
     } else {
@@ -78,10 +78,10 @@ const Banner = ({ onBookSelect }) => {
         category: book.category
       });
     }
-    
+
     localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
-    
+
     toast.success('Book added to cart!', {
       position: 'bottom-center',
     });
@@ -132,7 +132,7 @@ const Banner = ({ onBookSelect }) => {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {searchResults.map((book) => (
-                  <div 
+                  <div
                     key={book._id}
                     className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
                     onClick={() => onBookSelect(book)}

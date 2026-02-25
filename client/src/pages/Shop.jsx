@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { Card } from "flowbite-react";
 import "../App.css";
 import { ImSearch } from "react-icons/im";
 import { VscSettings } from "react-icons/vsc";
@@ -65,12 +64,12 @@ const Shop = () => {
 
   const queueUpdate = useCallback((itemId, changes) => {
     pendingUpdatesRef.current.push({ id: itemId, ...changes });
-    
+
     // Update local state immediately
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(item => item.id === itemId);
       if (existingItemIndex !== -1) {
-        return prevItems.map(item => 
+        return prevItems.map(item =>
           item.id === itemId ? { ...item, ...changes } : item
         );
       } else {
@@ -106,7 +105,7 @@ const Shop = () => {
 
     try {
       const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
-      
+
       // Convert image URL to base64
       const imageBlob = await fetch(book.imageURL).then(r => r.blob());
       const base64Image = await new Promise((resolve) => {
@@ -114,7 +113,7 @@ const Shop = () => {
         reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(imageBlob);
       });
-      
+
       const newItem = {
         id: book._id,
         bookTitle: book.bookTitle,
@@ -126,7 +125,7 @@ const Shop = () => {
       };
 
       queueUpdate(book._id, newItem);
-      
+
       toast.success('Book added to cart!', {
         position: 'bottom-center',
       });
@@ -144,11 +143,11 @@ const Shop = () => {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books")
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/all-books`)
       .then((res) => res.json())
       .then((data) => {
         const booksWithAuthor = data.map(book => ({
-          ...book, 
+          ...book,
           authorName: book.authorName || 'Unknown'
         }));
         setBooks(booksWithAuthor);
@@ -173,7 +172,7 @@ const Shop = () => {
         );
       });
       setFilteredBooks(filtered);
-      
+
       // Add to search history if not already present
       if (value.trim() !== '' && !searchHistory.includes(value.trim())) {
         setSearchHistory(prev => [value.trim(), ...prev].slice(0, 5));
@@ -216,13 +215,13 @@ const Shop = () => {
       if (comparison === 0 && sortConfig.secondaryField) {
         const aSecondary = a[sortConfig.secondaryField];
         const bSecondary = b[sortConfig.secondaryField];
-        
+
         if (typeof aSecondary === 'string') {
           comparison = aSecondary.localeCompare(bSecondary);
         } else {
           comparison = aSecondary - bSecondary;
         }
-        
+
         return sortConfig.secondaryDirection === 'desc' ? -comparison : comparison;
       }
 
@@ -268,23 +267,23 @@ const Shop = () => {
 
   const handleAdvancedSearch = () => {
     const filtered = books.filter((book) => {
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         (book.bookTitle && book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (book.category && book.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (book.authorName && book.authorName.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      const matchesAuthor = author === '' || 
+
+      const matchesAuthor = author === '' ||
         (book.authorName && book.authorName.toLowerCase().includes(author.toLowerCase()));
-      
-      const matchesCategory = category === '' || 
+
+      const matchesCategory = category === '' ||
         (book.category && book.category.toLowerCase() === category.toLowerCase());
-      
+
       const matchesPrice = (minPrice === '' || book.price >= Number(minPrice)) &&
-                           (maxPrice === '' || book.price <= Number(maxPrice));
-    
+        (maxPrice === '' || book.price <= Number(maxPrice));
+
       return matchesSearch && matchesAuthor && matchesCategory && matchesPrice;
     });
-    
+
     setFilteredBooks(filtered);
     setShowAdvancedSearch(false);
 
@@ -339,7 +338,7 @@ const Shop = () => {
 
   return (
     <div className="mt-24 py-4 lg:px-24">
-      <Toaster 
+      <Toaster
         position="bottom-center"
         toastOptions={{
           duration: 3000,
@@ -350,7 +349,7 @@ const Shop = () => {
         }}
       />
       <h2 className="text-4xl font-bold text-center text-blue-700">All Books</h2>
-      
+
       {/* Enhanced Search Control */}
       <div className="my-6 relative w-full max-w-2xl mx-auto">
         <div className="relative">
@@ -394,7 +393,7 @@ const Shop = () => {
             </div>
           </div>
         )}
-        
+
         {/* Enhanced Advanced Search */}
         <div className={`mt-4 bg-white border rounded-md shadow-md overflow-hidden transition-all duration-300 ease-in-out ${showAdvancedSearch ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="p-4 space-y-4">
@@ -487,15 +486,13 @@ const Shop = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleSort('bookTitle')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-all duration-200 ${
-              sortConfig.field === 'bookTitle' 
-                ? 'bg-blue-600 text-white border-blue-700 shadow-lg' 
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${sortConfig.field === 'bookTitle'
+                ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
                 : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'
-            }`}
+              }`}
           >
-            <FaSortAlphaDown className={`w-4 h-4 ${
-              sortConfig.field === 'bookTitle' ? 'text-blue-100' : 'text-current'
-            }`} />
+            <FaSortAlphaDown className={`w-4 h-4 ${sortConfig.field === 'bookTitle' ? 'text-blue-100' : 'text-current'
+              }`} />
             <span>Title</span>
             {sortConfig.field === 'bookTitle' && (
               <span className="text-sm">{sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'}</span>
@@ -504,15 +501,13 @@ const Shop = () => {
 
           <button
             onClick={() => handleSort('price')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-all duration-200 ${
-              sortConfig.field === 'price' 
-                ? 'bg-green-600 text-white border-green-700 shadow-lg' 
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${sortConfig.field === 'price'
+                ? 'bg-green-600 text-white border-green-700 shadow-lg'
                 : 'bg-white text-gray-600 border-gray-300 hover:border-green-400 hover:text-green-600 hover:bg-green-50'
-            }`}
+              }`}
           >
-            <FaDollarSign className={`w-4 h-4 ${
-              sortConfig.field === 'price' ? 'text-green-100' : 'text-current'
-            }`} />
+            <FaDollarSign className={`w-4 h-4 ${sortConfig.field === 'price' ? 'text-green-100' : 'text-current'
+              }`} />
             <span>Price</span>
             {sortConfig.field === 'price' && (
               <span className="text-sm">{sortConfig.direction === 'asc' ? 'Low-High' : 'High-Low'}</span>
@@ -527,46 +522,46 @@ const Shop = () => {
           {isLoading
             ? Array(10).fill().map((_, index) => <BookCardSkeleton key={index} />)
             : sortedBooks.map((book) => (
-                <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={(e) => handleBookClick(book, e)}>
-                  <div className="relative aspect-[2/3] bg-gray-100">
-                    <img
-                      src={book.imageURL}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      alt={book.bookTitle}
-                    />
-                    <button 
-                      className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(book);
-                      }}
-                    >
-                      {isInCart(book._id) ? (
-                        <FaCheck className={`w-4 h-4 ${addedToCart[book._id] ? 'animate-bounce' : ''}`} />
-                      ) : (
-                        <FaShoppingCart className="w-4 h-4" />
-                      )}
+              <div key={book._id} className="bg-white border-3 border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 transition-all duration-200 flex flex-col shadow-lg hover:shadow-xl cursor-pointer" onClick={(e) => handleBookClick(book, e)}>
+                <div className="relative aspect-[2/3] bg-gray-100">
+                  <img
+                    src={book.imageURL}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    alt={book.bookTitle}
+                  />
+                  <button
+                    className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${addedToCart[book._id] ? 'scale-110' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(book);
+                    }}
+                  >
+                    {isInCart(book._id) ? (
+                      <FaCheck className={`w-4 h-4 ${addedToCart[book._id] ? 'animate-bounce' : ''}`} />
+                    ) : (
+                      <FaShoppingCart className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                <div className="p-4 border-t-2 border-gray-200 bg-gray-50">
+                  <h4 className="text-base font-semibold text-gray-800 mb-1 truncate">
+                    {book.bookTitle}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-1 truncate">
+                    {book.author || book.authorName || 'Unknown'}
+                  </p>
+                  <p className="text-sm text-blue-600 mb-2">{book.category}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-base font-bold text-green-600">
+                      ${typeof book.price === 'number' ? book.price.toFixed(2) : parseFloat(book.price).toFixed(2) || '0.00'}
+                    </span>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1.5 px-3 rounded transition duration-200 ease-in-out">
+                      Buy Now
                     </button>
                   </div>
-                  <div className="p-4 border-t-2 border-gray-200 bg-gray-50">
-                    <h4 className="text-base font-semibold text-gray-800 mb-1 truncate">
-                      {book.bookTitle}
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-1 truncate">
-                      {book.author || book.authorName || 'Unknown'}
-                    </p>
-                    <p className="text-sm text-blue-600 mb-2">{book.category}</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-base font-bold text-green-600">
-                        ${typeof book.price === 'number' ? book.price.toFixed(2) : parseFloat(book.price).toFixed(2) || '0.00'}
-                      </span>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1.5 px-3 rounded transition duration-200 ease-in-out">
-                        Buy Now
-                      </button>
-                    </div>
-                  </div>
                 </div>
-              ))}
+              </div>
+            ))}
         </div>
       </div>
 

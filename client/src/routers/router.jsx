@@ -40,10 +40,7 @@ const router = createBrowserRouter([
         path: "/book/:id",
         element: <SingleBook />,
         loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_API_URL}/book/${params.id}` ||
-              "http://localhost:5000/book/${params.id}"
-          ),
+          fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/book/${params.id}`),
       },
     ],
   },

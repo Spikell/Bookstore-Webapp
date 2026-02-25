@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import axios from 'axios';
 import CartDB from './Firebase/CartDB';
 import './App.css'
-import { Outlet }  from 'react-router-dom'
-import Navbar  from './components/Navbar'
+import { Outlet } from 'react-router-dom'
+import Navbar from './components/Navbar'
 import { NextUIProvider } from "@nextui-org/react"
 import { Toaster } from 'react-hot-toast';
 import { app } from './Firebase/firebase.config';
@@ -14,8 +14,8 @@ function App() {
   useEffect(() => {
     const makeApiCall = async () => {
       try {
-        console.log("Attempting to call API at:", `${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-books` || "http://localhost:5000/all-books");
+        console.log("Attempting to call API at:", `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/all-books`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/all-books`);
         console.log("API response:", response.data);
       } catch (error) {
         console.error("Error making API call:", error.message);
@@ -42,8 +42,8 @@ function App() {
             },
           }}
         />
-        <Navbar/>
-        <Outlet/>
+        <Navbar />
+        <Outlet />
       </NextUIProvider>
     </>
   );
