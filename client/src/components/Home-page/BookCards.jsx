@@ -33,14 +33,6 @@ const BookCards = ({ headline, books, onBookSelect }) => {
       
       const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
       
-      // Convert image URL to base64
-      const imageBlob = await fetch(book.imageURL).then(r => r.blob());
-      const base64Image = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(imageBlob);
-      });
-      
       let updatedCart;
       if (existingItemIndex !== -1) {
         updatedCart = existingCart.map((item, index) => 
@@ -54,7 +46,7 @@ const BookCards = ({ headline, books, onBookSelect }) => {
             bookTitle: book.bookTitle,
             price: price,
             quantity: 1,
-            imageURL: base64Image,
+            imageURL: book.imageURL,
             authorName: book.authorName || 'Unknown',
             category: book.category
           }

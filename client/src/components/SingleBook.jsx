@@ -17,14 +17,6 @@ const SingleBook = ({ book, onClose, addToCart }) => {
     
     const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
     
-    // Convert image URL to base64
-    const imageBlob = await fetch(book.imageURL).then(r => r.blob());
-    const base64Image = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(imageBlob);
-    });
-    
     if (existingItemIndex !== -1) {
       existingCart[existingItemIndex].quantity += 1;
     } else {
@@ -33,7 +25,7 @@ const SingleBook = ({ book, onClose, addToCart }) => {
         bookTitle: book.bookTitle,
         price: price,
         quantity: 1,
-        imageURL: base64Image,
+        imageURL: book.imageURL,
         authorName: book.authorName || 'Unknown',
         category: book.category
       });
