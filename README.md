@@ -1,94 +1,77 @@
-# BookHaven
+# BookHaven (MERN Bookstore)
 
-BookHaven is a modern web app for book lovers to buy, sell, and explore books.
+BookHaven is a full-stack bookstore application built with React + Vite on the frontend and Express + MongoDB on the backend. It includes browsing, search/filtering, cart-related Firebase integration, and dashboard book management.
 
 ## Features
 
-- **Book Management**: Upload, edit, and manage books.
-- **User Authentication**: Secure login/signup with Firebase.
-- **Responsive Design**: Optimized for all devices.
-- **Search & Filter**: Search by title and filter by categories.
+- Browse all books with category and title filtering
+- View single-book details
+- Dashboard flows for upload, edit, and delete
+- Firebase authentication integration
+- Firestore/Storage integration for user/cart-related flows
+- Responsive UI with Tailwind CSS and Flowbite
 
-## Technologies
+## Tech Stack
 
-- **Frontend**: React, Vite, Tailwind CSS, Flowbite
-- **Backend**: Express, MongoDB
-- **Auth**: Firebase
-- **Icons**: React Icons
-- **Routing**: React Router
+- Frontend: React 18, Vite, React Router, Tailwind CSS, Flowbite
+- Backend: Node.js, Express
+- Database: MongoDB (`BookInventory` / `books`)
+- Auth + Cloud: Firebase (Auth, Firestore, Storage)
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- Node.js 18+
+- npm
+- MongoDB Atlas connection string
+- Firebase project credentials
 
-- Node.js
-- npm or yarn
+## Quick Start
 
-### Installation
+1. Install dependencies:
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/yourusername/bookhaven.git
-    cd bookhaven
-    ```
+```bash
+cd server
+npm install
+cd ../client
+npm install
+```
 
-2. Install dependencies:
-    ```sh
-    cd client
-    npm install
-    cd ../server
-    npm install
-    ```
+2. Run backend (terminal 1):
 
-### Running the App
+```bash
+cd server
+npm run dev
+```
 
-1. Start the backend:
-    ```sh
-    cd server
-    npm start
-    ```
+3. Run frontend (terminal 2):
 
-2. Start the frontend:
-    ```sh
-    cd ../client
-    npm run dev
-    ```
+```bash
+cd client
+npm run dev
+```
 
-3. Open `http://localhost:3000`.
+Open the Vite URL (usually `http://localhost:5173`).
 
-## Project Structure
+## Database Notes
 
-### Client
+Use MongoDB Atlas for your cluster and create a database user + network access before connecting.
+For full setup details, follow the official Atlas guide:
+https://www.mongodb.com/docs/atlas/
 
-- **Components**: Reusable UI components
-- **Pages**: Main pages (e.g., `Home.jsx`, `Shop.jsx`)
-- **Dashboard**: Admin components (e.g., `EditBook.jsx`)
-- **Assets**: Images and icons
-- **Styles**: CSS and Tailwind config
+## API Testing / Data Upload
 
-### Server
+You can test and seed endpoints with Postman or any API client.
 
-- **index.js**: Main server file
-- **Routes**: API endpoints
+## Available Scripts
 
-## Configuration
+### `server/`
 
-### Firebase
+- `npm start` - Run server with Node
+- `npm run dev` - Run server with Nodemon
 
-Configure in `client/src/Firebase/firebase.config.js`.
+### `client/`
 
-### MongoDB
-
-Set up in `server/index.js`.
-
-## Scripts
-
-### Client
-
-- `npm run dev`: Start development server
-- `npm run build`: Build for production
-- `npm run lint`: Run ESLint
-
-### Server
-
-- `npm start`: Start backend server
+- `npm run dev` - Start Vite dev server
+- `npm run build` - Create production build
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint
