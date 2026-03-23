@@ -17,7 +17,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { initFlowbite } from "flowbite";
 import { AuthContext } from "../Firebase/AuthProvider";
 import { AiOutlineHome } from "react-icons/ai";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBook, FaChartBar, FaUserCircle } from "react-icons/fa";
 
 const getNameFromEmail = (email) => {
@@ -28,8 +28,15 @@ const getNameFromEmail = (email) => {
 };
 
 export const SideBar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout().then(() => {
+      navigate("/");
+    });
+  };
   const [collapsed, setCollapsed] = useState(false);
   
   // Function to check if a path is active
@@ -123,14 +130,14 @@ export const SideBar = () => {
                 </Sidebar.Item>
               </Link>
               
-              <Link to="/logout">
+              <button onClick={handleLogout} className="w-full text-left">
                 <Sidebar.Item
                   icon={RiLogoutBoxLine}
                   className="hover:bg-red-50 text-red-600 transition-colors duration-200"
                 >
                   Log Out
                 </Sidebar.Item>
-              </Link>
+              </button>
             </div>
           </Sidebar.ItemGroup>
         </Sidebar.Items>
