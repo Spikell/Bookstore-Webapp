@@ -65,13 +65,14 @@ function Cart() {
       const userCartRef = doc(collection(db, "cart data"), user.uid);
 
       try {
-        const cartData = updatedCart.map(({ imageURL, ...item }) => ({
-          authorName: item.authorName,
+        const cartData = updatedCart.map((item) => ({
+          authorName: item.authorName || 'Unknown',
           bookTitle: item.bookTitle,
           category: item.category,
           price: item.price,
           quantity: item.quantity,
           id: item.id,
+          imageURL: item.imageURL || ''
         }));
 
         batch.set(userCartRef, { items: cartData }, { merge: true });
@@ -141,7 +142,10 @@ function Cart() {
         prevItems.filter((item) => item.id !== itemId)
       );
       queueUpdate(itemId, { removed: true });
-      toast.success("Item removed from cart");
+      toast.success("Item removed from cart", { 
+        position: "bottom-center",
+        style: { marginBottom: '30px' }
+      });
     },
     [queueUpdate]
   );
@@ -210,64 +214,61 @@ function Cart() {
   }, [cartItems, calculateSubtotal]);
 
   return (
-    <div className="mt-20 px-4 lg:px-16 xl:px-24 mb-16 max-w-screen-2xl mx-auto">
+    <div className="mt-28 px-4 lg:px-8 xl:px-12 mb-12 max-w-screen-xl mx-auto">
       <Toaster position="top-center" reverseOrder={false} />
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-blue-700">
-        Your Shopping Cart
-      </h2>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+        <div className="flex justify-center items-center h-48">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
         </div>
       ) : !user ? (
-        <div className="text-center py-16 bg-gray-50 rounded-lg shadow-md border border-gray-200">
-          <FaExclamationCircle className="mx-auto text-yellow-500 text-5xl mb-4" />
-          <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+        <div className="text-center py-12 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+          <FaExclamationCircle className="mx-auto text-yellow-500 text-4xl mb-3" />
+          <h3 className="text-xl font-semibold text-gray-700 mb-3">
             Please log in to view your cart
           </h3>
           <Link
             to="/login"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium"
+            className="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium"
           >
             <FaShoppingBag className="mr-2" /> Go to Login
           </Link>
         </div>
       ) : cartItems.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-lg shadow-md border border-gray-200">
-          <FaShoppingCart className="mx-auto text-gray-300 text-7xl mb-6" />
-          <h3 className="text-2xl font-semibold text-gray-700 mb-5">
+        <div className="text-center py-16 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+          <FaShoppingCart className="mx-auto text-gray-300 text-6xl mb-5" />
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
             Your cart is empty
           </h3>
           <Link
             to="/shop"
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium text-lg"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-md hover:bg-blue-700 transition duration-300 inline-flex items-center font-medium text-base"
           >
             <FaShoppingBag className="mr-2" /> Continue Shopping
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-              <div className="p-5 bg-indigo-300 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-800">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+              <div className="p-3 bg-indigo-50 border-b border-gray-200 flex justify-between items-center px-5">
+                <h3 className="text-lg font-semibold text-gray-800">
                   Cart Items ({cartItems.length})
                 </h3>
                 <button
                   onClick={clearCart}
-                  className="text-red-500 hover:text-red-700 flex items-center transition duration-200 bg-white py-1.5 px-3 rounded-md border border-red-200 hover:bg-red-50"
+                  className="text-red-500 hover:text-red-700 flex items-center transition duration-200 bg-white py-1 px-2.5 rounded text-sm border border-red-200 hover:bg-red-50"
                 >
-                  <FaTrash className="mr-2" /> Clear All
+                  <FaTrash className="mr-1.5" size={12} /> Clear All
                 </button>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-100">
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:bg-gray-50 transition-colors duration-150"
+                    className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-gray-50 transition-colors duration-150"
                   >
-                    <div className="w-24 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden border border-gray-200">
+                    <div className="w-16 h-24 flex-shrink-0 bg-gray-100 rounded overflow-hidden border border-gray-200">
                       <img
                         src={item.imageURL}
                         alt={item.bookTitle}
@@ -275,48 +276,50 @@ function Cart() {
                       />
                     </div>
                     <div className="flex-grow">
-                      <h4 className="text-xl font-semibold text-gray-800 mb-1 flex items-center">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-0.5 leading-tight">
                         {item.bookTitle}
                       </h4>
-                      <p className="text-md text-gray-600 mb-1 flex items-center">
-                        <FaUser className="mr-2 text-gray-500" size={14} />
-                        <span>{item.authorName}</span>
+                      <p className="text-sm text-gray-600 mb-1 flex items-center">
+                        <FaUser className="mr-1.5 text-gray-400" size={12} />
+                        <span className="truncate max-w-[200px]">{item.authorName}</span>
                       </p>
-                      <p className="text-sm text-blue-600 font-medium px-2 py-0.5 bg-blue-50 rounded-full inline-flex items-center">
-                        <FaTag className="mr-1 text-blue-500" size={12} />
+                      <p className="text-xs text-blue-600 font-medium px-2 py-0.5 bg-blue-50 rounded-full inline-flex items-center">
+                        <FaTag className="mr-1 text-blue-400" size={10} />
                         {item.category}
                       </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
-                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                    <div className="flex flex-row items-center gap-4 mt-3 sm:mt-0 sm:ml-auto w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="flex items-center border border-gray-300 rounded overflow-hidden shadow-sm">
                         <button
                           onClick={() => decrementQuantity(item.id)}
-                          className="px-3 py-2.5 w-12 h-10 flex items-center justify-center hover:bg-gray-200 hover:text-red-600 active:bg-gray-300 transition-all duration-200 ease-in-out"
+                          className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-200 hover:text-red-600 active:bg-gray-300 transition-colors"
                           aria-label="Decrease quantity"
                         >
-                          <FaMinus size={12} />
+                          <FaMinus size={10} />
                         </button>
-                        <span className="px-4 py-1.5 font-medium min-w-[40px] text-center">
+                        <span className="w-8 flex items-center justify-center font-medium text-sm font-mono">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => incrementQuantity(item.id)}
-                          className="px-3 py-2.5 w-12 h-10 flex items-center justify-center hover:bg-gray-200 hover:text-green-600 active:bg-gray-300 transition-all duration-200 ease-in-out"
+                          className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-200 hover:text-green-600 active:bg-gray-300 transition-colors"
                           aria-label="Increase quantity"
                         >
-                          <FaPlus size={12} />
+                          <FaPlus size={10} />
                         </button>
                       </div>
-                      <p className="text-xl font-bold text-green-600 min-w-[80px] text-center">
-                        ${parseFloat(item.price).toFixed(2)}
-                      </p>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-500 hover:text-red-700 flex items-center justify-center transition duration-200 p-2 rounded-full hover:bg-red-100 w-10 h-10"
-                        aria-label="Remove item"
-                      >
-                        <FaTrash size={16} />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <p className="text-lg font-bold text-green-600 min-w-[70px] text-right">
+                          ${parseFloat(item.price).toFixed(2)}
+                        </p>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="text-gray-400 hover:text-red-600 flex items-center justify-center transition-colors p-1.5 rounded-full hover:bg-red-50"
+                          aria-label="Remove item"
+                        >
+                          <FaTrash size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -325,58 +328,48 @@ function Cart() {
           </div>
 
           <div className="lg:col-span-4">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-28 border border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-800 mb-5 pb-4 border-b border-gray-200 flex items-center">
-                <FaReceipt className="mr-2 text-blue-600" size={18} />
+            <div className="bg-white rounded-lg shadow-sm p-5 sticky top-24 border border-gray-200 text-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center">
+                <FaReceipt className="mr-2 text-blue-600" size={16} />
                 Order Summary
               </h3>
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <FaShoppingCart className="mr-2 text-gray-500" size={14} />
-                    Subtotal
-                  </span>
-                  <span className="font-medium text-lg">
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>Subtotal</span>
+                  <span className="font-medium text-gray-800">
                     ${calculateSubtotal().toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <FaPercentage className="mr-2 text-gray-500" size={14} />
-                    Tax (10%)
-                  </span>
-                  <span className="font-medium text-lg">
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>Tax (10%)</span>
+                  <span className="font-medium text-gray-800">
                     ${(calculateSubtotal() * 0.1).toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <FaTruck className="mr-2 text-gray-500" size={14} />
-                    Shipping
-                  </span>
-                  <span className="font-medium text-lg">$5.00</span>
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>Shipping</span>
+                  <span className="font-medium text-gray-800">$5.00</span>
                 </div>
-                <div className="pt-4 mt-2 border-t border-gray-200 flex justify-between items-center">
-                  <span className="text-lg font-semibold flex items-center">
-                    <FaMoneyCheckAlt className="mr-2 text-blue-600" size={16} />
+                <div className="pt-3 mt-2 border-t border-gray-100 flex justify-between items-center">
+                  <span className="text-base font-semibold text-gray-800">
                     Total
                   </span>
-                  <span className="text-2xl font-bold text-blue-700">
+                  <span className="text-xl font-bold text-blue-700">
                     ${(calculateSubtotal() * 1.1 + 5).toFixed(2)}
                   </span>
                 </div>
               </div>
               <button
                 onClick={handleCheckout}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center font-semibold text-lg shadow-sm"
+                className="w-full bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center font-medium text-base shadow-sm"
               >
-                <FaCreditCard className="mr-2" /> Proceed to Checkout
+                <FaCreditCard className="mr-2" size={14} /> Checkout
               </button>
               <Link
                 to="/shop"
-                className="w-full mt-4 bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition duration-300 flex items-center justify-center border border-gray-300"
+                className="w-full mt-3 bg-white text-gray-600 py-2.5 rounded-md hover:bg-gray-50 hover:text-gray-800 transition duration-300 flex items-center justify-center border border-gray-300 text-sm font-medium"
               >
-                <FaArrowLeft className="mr-2" /> Continue Shopping
+                Continue Shopping
               </Link>
             </div>
           </div>
