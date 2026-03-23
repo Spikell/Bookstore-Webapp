@@ -109,8 +109,8 @@ const ManageBook = () => {
             onClick={() => paginate(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className={`relative inline-flex items-center px-2 py-2 rounded-l-md border ${currentPage === 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-500 hover:bg-teal-50'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white text-gray-500 hover:bg-teal-50'
               } text-sm font-medium`}
           >
             <span className="sr-only">Previous</span>
@@ -132,8 +132,8 @@ const ManageBook = () => {
                   key={pageNumber}
                   onClick={() => paginate(pageNumber)}
                   className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNumber
-                      ? 'z-10 bg-teal-50 border-teal-500 text-teal-600'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    ? 'z-10 bg-teal-50 border-teal-500 text-teal-600'
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                     }`}
                 >
                   {pageNumber}
@@ -159,8 +159,8 @@ const ManageBook = () => {
             onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             className={`relative inline-flex items-center px-2 py-2 rounded-r-md border ${currentPage === totalPages
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-500 hover:bg-teal-50'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white text-gray-500 hover:bg-teal-50'
               } text-sm font-medium`}
           >
             <span className="sr-only">Next</span>
