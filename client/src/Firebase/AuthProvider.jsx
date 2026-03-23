@@ -7,8 +7,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { app } from "../Firebase/firebase.config";
-import { signOut } from "firebase/auth";
+import { app, db } from "../Firebase/firebase.config";
+import { signOut, deleteUser as deleteAuthUser } from "firebase/auth";
+import { doc, deleteDoc } from "firebase/firestore";
 
 export const AuthContext = createContext(null);
 
@@ -38,6 +39,39 @@ export const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, googleProvider);
   };
 
+  const deleteAccount = async () => {
+    const currentUser = auth.currentUser || user;
+    if (!currentUser) {
+      throw new Error("No authenticated user found.");
+    }
+    
+    setLoading(true);
+    try {
+      // 1. Try to delete cart data from Firestore
+      try {
+        await deleteDoc(doc(db, "cart data", currentUser.uid));
+        console.log("Firestore cart data deleted successfully.");
+      } catch (dbError) {
+        console.error("Warning: Could not delete cart data from Firestore (possibly due to security rules):", dbError);
+        // We continue because the user's primary intent is deleting their Auth account.
+      }
+      
+      // Clear local storage for this user's cart
+      localStorage.removeItem(`cart_${currentUser.uid}`);
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [], userId: currentUser.uid } }));
+      
+      // 2. Delete user account from Firebase
+      await deleteAuthUser(currentUser);
+      setUser(null);
+      console.log("Firebase Auth account completely deleted.");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -57,6 +91,7 @@ export const AuthProvider = ({ children }) => {
     loginWithGoogle,
     login,
     logout,
+    deleteAccount,
   };
 
   if (loading) {
