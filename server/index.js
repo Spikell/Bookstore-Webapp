@@ -49,7 +49,7 @@ async function connectToDatabase() {
   if (cachedDb) {
     return cachedDb;
   }
-  
+
   try {
     await client.connect();
     const db = client.db("BookInventory");
