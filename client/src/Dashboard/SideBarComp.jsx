@@ -64,7 +64,7 @@ export const SideBar = () => {
       </button>
       
       <Sidebar 
-        className={`border border-gray-300 shadow-lg transition-all duration-300 ease-in-out bg-white h-auto max-h-screen overflow-y-auto ${
+        className={`border border-gray-300 shadow-lg transition-all duration-300 ease-in-out !bg-white [&>div]:!bg-white h-auto max-h-screen overflow-y-auto ${
           collapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"
         } md:sticky md:top-0 fixed top-0 left-0 z-40 md:z-0 w-64`}
       >
@@ -79,44 +79,44 @@ export const SideBar = () => {
           <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
         </div>
 
-        <Sidebar.Items>
-          <Sidebar.ItemGroup>
+        <Sidebar.Items className="[&_ul]:!bg-white">
+          <Sidebar.ItemGroup className="[&_li]:!bg-white">
             <Link to="/admin/dashboard">
               <Sidebar.Item
                 icon={RxDashboard}
-                className={`transition-colors duration-200 ${
+                className={`transition-colors duration-200 !text-gray-700 ${
                   isActive("/admin/dashboard") && !isActive("/admin/dashboard/upload") && !isActive("/admin/dashboard/manage") && !isActive("/admin/dashboard/edit-book")
-                    ? "bg-teal-100 text-teal-800 font-medium border-l-4 border-teal-500"
-                    : "hover:bg-teal-50 text-gray-700"
+                    ? "!bg-teal-100 !text-teal-800 font-medium border-l-4 border-teal-500"
+                    : "hover:!bg-teal-50 !text-gray-700"
                 }`}
               >
-                Dashboard
+                <span className="!text-gray-700">Dashboard</span>
               </Sidebar.Item>
             </Link>
             
             <Link to="/admin/dashboard/upload">
               <Sidebar.Item
                 icon={TbBookUpload}
-                className={`transition-colors duration-200 ${
+                className={`transition-colors duration-200 !text-gray-700 ${
                   isActive("/admin/dashboard/upload")
-                    ? "bg-teal-100 text-teal-800 font-medium border-l-4 border-teal-500"
-                    : "hover:bg-teal-50 text-gray-700"
+                    ? "!bg-teal-100 !text-teal-800 font-medium border-l-4 border-teal-500"
+                    : "hover:!bg-teal-50 !text-gray-700"
                 }`}
               >
-                Upload Book
+                <span className="!text-gray-700">Upload Book</span>
               </Sidebar.Item>
             </Link>
             
             <Link to="/admin/dashboard/manage">
               <Sidebar.Item
                 icon={HiInbox}
-                className={`transition-colors duration-200 ${
+                className={`transition-colors duration-200 !text-gray-700 ${
                   isActive("/admin/dashboard/manage") || isActive("/admin/dashboard/edit-book")
-                    ? "bg-teal-100 text-teal-800 font-medium border-l-4 border-teal-500"
-                    : "hover:bg-teal-50 text-gray-700"
+                    ? "!bg-teal-100 !text-teal-800 font-medium border-l-4 border-teal-500"
+                    : "hover:!bg-teal-50 !text-gray-700"
                 }`}
               >
-                Manage Books
+                <span className="!text-gray-700">Manage Books</span>
               </Sidebar.Item>
             </Link>
             
@@ -124,25 +124,23 @@ export const SideBar = () => {
               <Link to="/">
                 <Sidebar.Item
                   icon={AiOutlineHome}
-                  className="hover:bg-teal-50 text-gray-700 transition-colors duration-200"
+                  className="hover:!bg-teal-50 !text-gray-700 transition-colors duration-200"
                 >
-                  Home
+                  <span className="!text-gray-700">Home</span>
                 </Sidebar.Item>
               </Link>
               
               <button onClick={handleLogout} className="w-full text-left">
                 <Sidebar.Item
                   icon={RiLogoutBoxLine}
-                  className="hover:bg-red-50 text-red-600 transition-colors duration-200"
+                  className="hover:!bg-red-50 !text-red-600 transition-colors duration-200"
                 >
-                  Log Out
+                  <span className="!text-red-600">Log Out</span>
                 </Sidebar.Item>
               </button>
             </div>
           </Sidebar.ItemGroup>
         </Sidebar.Items>
-        
-
       </Sidebar>
       
       {/* Overlay for mobile */}
