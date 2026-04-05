@@ -220,7 +220,7 @@ const ManageBook = () => {
                 placeholder="Search by title or author..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 !bg-white !text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
               />
             </div>
           </div>
@@ -236,15 +236,15 @@ const ManageBook = () => {
                 value={filterCategory}
                 onChange={handleCategoryChange}
                 onFocus={() => setShowCategoryDropdown(true)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 !bg-white !text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
               />
               {showCategoryDropdown && (
-                <ul className="modern-scrollbar absolute z-10 w-full top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <ul className="modern-scrollbar absolute z-10 w-full top-full mt-1 !bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                   {filteredCategories.map((category) => (
                     <li
                       key={category.value}
                       onClick={() => handleCategorySelect(category)}
-                      className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
+                      className="px-4 py-2 !text-gray-800 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
                     >
                       {category.label}
                     </li>

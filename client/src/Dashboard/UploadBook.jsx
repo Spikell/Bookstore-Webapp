@@ -106,14 +106,14 @@ const UploadBook = () => {
               name="bookTitle"
               placeholder="Enter book title"
               required
-              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           {/* Author Name*/}
           <div className="mt-4 md:mt-0 w-full lg:w-[600px] ">
             <label
               htmlFor="authorName"
-              className="mb-2 block text-md font-semibold text-gray-700"
+              className="mb-2 block text-md font-semibold !text-gray-700"
             >
               Author
             </label>
@@ -123,7 +123,7 @@ const UploadBook = () => {
               name="authorName"
               placeholder="Enter author name"
               required
-              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ const UploadBook = () => {
                 name="imageURL"
                 placeholder="Enter image URL"
                 required
-                className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+                className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               />
             </div>
 
@@ -152,7 +152,7 @@ const UploadBook = () => {
             <div className="flex flex-col lg:w-[600px] relative" ref={dropdownRef}>
               <label
                 htmlFor="category"
-                className="mb-2 block text-md font-semibold text-gray-700"
+                className="mb-2 block text-md font-semibold !text-gray-700"
               >
                 Category
               </label>
@@ -165,15 +165,15 @@ const UploadBook = () => {
                 onFocus={() => setShowDropdown(true)}
                 placeholder="Enter or select a category"
                 required
-                className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+                className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               />
               {showDropdown && (
-                <ul className="modern-scrollbar absolute z-10 w-9/12 top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <ul className="modern-scrollbar absolute z-10 w-9/12 top-full mt-1 !bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                   {filteredCategories.map((category) => (
                     <li
                       key={category.value}
                       onClick={() => handleCategorySelect(category)}
-                      className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
+                      className="px-4 py-2 !text-gray-800 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
                     >
                       {category.label}
                     </li>
@@ -199,14 +199,14 @@ const UploadBook = () => {
               name="bookPdfURL"
               placeholder="Enter PDF URL"
               required
-              className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           {/* price */}
           <div className="w-full lg:w-[600px]">
             <label
               htmlFor="price"
-              className="mb-2 block text-md font-semibold text-gray-700"
+              className="mb-2 block text-md font-semibold !text-gray-700"
             >
               Price ($)
             </label>
@@ -218,7 +218,7 @@ const UploadBook = () => {
               step="0.01"
               min="0"
               required
-              className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-5000"
+              className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-5000 [color-scheme:light]"
             />
           </div>
         </div>
@@ -238,7 +238,7 @@ const UploadBook = () => {
               placeholder="Enter book description"
               rows={6}
               required
-              className="w-full rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-full rounded-md border !border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               style={{ whiteSpace: 'pre-wrap' }}
             />
           </div>

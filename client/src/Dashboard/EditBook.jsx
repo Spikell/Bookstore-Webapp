@@ -136,14 +136,14 @@ const EditBook = () => {
               placeholder="Enter book title"
               defaultValue={bookData.bookTitle}
               required
-              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           {/* Author Name*/}
           <div className="mt-4 md:mt-0 w-full lg:w-[600px] ">
             <label
               htmlFor="authorName"
-              className="mb-2 block text-md font-semibold text-gray-700"
+              className="mb-2 block text-md font-semibold !text-gray-700"
             >
               Author
             </label>
@@ -154,7 +154,7 @@ const EditBook = () => {
               placeholder="Enter author name"
               defaultValue={bookData.authorName}
               required
-              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-[350px] lg:w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ const EditBook = () => {
                 placeholder="Enter image URL"
                 defaultValue={bookData.imageURL}
                 required
-                className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+                className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               />
             </div>
 
@@ -184,7 +184,7 @@ const EditBook = () => {
             <div className="flex flex-col lg:w-[600px] relative" ref={dropdownRef}>
               <label
                 htmlFor="category"
-                className="mb-2 block text-md font-semibold text-gray-700"
+                className="mb-2 block text-md font-semibold !text-gray-700"
               >
                 Category
               </label>
@@ -197,15 +197,15 @@ const EditBook = () => {
                 onFocus={() => setShowDropdown(true)}
                 placeholder="Enter or select a category"
                 required
-                className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+                className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
               />
               {showDropdown && (
-                <ul className="modern-scrollbar absolute z-10 w-9/12 top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <ul className="modern-scrollbar absolute z-10 w-9/12 top-full mt-1 !bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                   {filteredCategories.map((category) => (
                     <li
                       key={category.value}
                       onClick={() => handleCategorySelect(category)}
-                      className="px-4 py-2 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
+                      className="px-4 py-2 !text-gray-800 hover:bg-teal-50 cursor-pointer transition-colors duration-150"
                     >
                       {category.label}
                     </li>
@@ -221,7 +221,7 @@ const EditBook = () => {
           <div className="w-full lg:w-[600px]">
             <label
               htmlFor="bookPdfURL"
-              className="mb-2 block text-md font-semibold text-gray-700"
+              className="mb-2 block text-md font-semibold !text-gray-700"
             >
               Book PDF URL
             </label>
@@ -232,7 +232,7 @@ const EditBook = () => {
               placeholder="Enter PDF URL"
               defaultValue={bookData.bookPdfURL}
               required
-              className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           {/* price */}
@@ -252,7 +252,7 @@ const EditBook = () => {
               step="0.01"
               min="0"
               required
-              className="w-9/12 rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-5000"
+              className="w-9/12 rounded-md border border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-5000 [color-scheme:light]"
             />
           </div>
         </div>
@@ -273,7 +273,7 @@ const EditBook = () => {
               rows={6}
               defaultValue={bookData.description}
               required
-              className="w-full rounded-md border border-gray-400 bg-gray-50 p-2 focus:border-cyan-500 focus:ring-cyan-500"
+              className="w-full rounded-md border !border-gray-400 !bg-gray-50 !text-gray-900 p-2 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
           <button className=" bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-all duration-200 md:ml-96 mt-8">
