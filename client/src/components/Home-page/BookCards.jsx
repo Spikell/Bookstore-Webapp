@@ -77,7 +77,7 @@ const BookCards = ({ headline, books, onBookSelect }) => {
 
   return (
     <div className="px-4 lg:px-24">
-      <h2 className="text-4xl text-center font-extrabold my-12 relative">
+      <h2 className="text-4xl text-center font-extrabold mb-12 relative">
         <span className="bg-gradient-to-r from-blue-700 to-purple-600 bg-clip-text text-transparent">{headline}</span>
         <div className="w-24 h-1 bg-gradient-to-r from-blue-700 to-purple-600 mx-auto mt-3"></div>
       </h2> 
@@ -109,34 +109,51 @@ const BookCards = ({ headline, books, onBookSelect }) => {
             },
           }}
           modules={[Pagination, Navigation]}
-          className="mySwiper"
+          className="bookCardsSwiper"
         >
           {books.map(book => (
             <SwiperSlide key={book._id}>
               <div 
-                className="relative bg-white rounded-lg border-r-2 border-b-2 shadow-lg overflow-hidden cursor-pointer h-[480px] w-full flex flex-col"
+                className="bg-white rounded-none overflow-hidden hover:ring-2 ring-blue-500/50 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl cursor-pointer group h-[480px] w-full"
                 onClick={() => onBookSelect(book)}
               >
-                <div className="h-[320px] w-full overflow-hidden">
-                  <img src={book.imageURL} alt={book.bookTitle} className="w-full h-full object-contain" />
+                <div className="h-[300px] w-full overflow-hidden relative shrink-0">
+                  <img src={book.imageURL} alt={book.bookTitle} className="w-full h-full object-fill" />
+                  
+                  <button 
+                    className={`cart-button absolute top-3 right-3 p-2.5 rounded-full shadow-lg transition-all duration-300 z-10 ${isInCart(book._id) ? 'bg-green-500 text-white cursor-default hover:bg-green-600' : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white'} ${recentlyAdded[book._id] ? 'ring-4 ring-green-500/30' : ''}`}
+                    onClick={(e) => addToCart(book, e)}
+                  >
+                    {isInCart(book._id) ? (
+                      <FaCheck className={`w-4 h-4 ${recentlyAdded[book._id] ? 'animate-bounce' : ''}`} />
+                    ) : (
+                      <FaShoppingCart className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
-                <button 
-                  className={`cart-button absolute top-2 right-2 bg-blue-700 hover:bg-blue-800 text-white p-2 rounded-lg transition-all duration-300 ease-in-out transform ${recentlyAdded[book._id] ? 'scale-110' : ''}`}
-                  onClick={(e) => addToCart(book, e)}
-                >
-                  {isInCart(book._id) ? (
-                    <FaCheck className={`w-4 h-4 ${recentlyAdded[book._id] ? 'animate-bounce' : ''}`} />
-                  ) : (
-                    <FaShoppingCart className="w-4 h-4" />
-                  )}
-                </button>
-                <div className="p-4 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 h-[56px]">{book.bookTitle}</h3>
-                    <p className="text-sm text-gray-600 truncate">{book.authorName}</p>
+                
+                <div className="p-4 flex flex-col flex-grow bg-white border-t border-gray-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-sm tracking-wider uppercase truncate">
+                      {book.category || 'Book'}
+                    </span>
                   </div>
-                  <div className="mt-2">
-                    <p className="text-lg font-bold text-green-600">${book.price}</p>
+                  <h4 className="text-base font-bold text-gray-900 mb-1 line-clamp-2 leading-snug flex-grow group-hover:text-blue-700 transition-colors">
+                    {book.bookTitle}
+                  </h4>
+                  <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-600">
+                     <span className="font-semibold text-gray-800 truncate">
+                       <span className="text-gray-400 font-normal mr-1">by</span>
+                       {book.authorName || 'Unknown Author'}
+                     </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 font-medium mb-0.5">Price</span>
+                      <span className="text-xl font-black text-green-700">
+                        ${typeof book.price === 'number' ? book.price.toFixed(2) : parseFloat(book.price).toFixed(2) || '0.00'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -148,11 +165,14 @@ const BookCards = ({ headline, books, onBookSelect }) => {
       </div>
       <style>
         {`
-          .mySwiper {
+          .bookCardsSwiper {
+            padding-top: 15px;
             padding-bottom: 50px;
+            padding-left: 5px;
+            padding-right: 5px;
             position: relative;
           }
-          .mySwiper .swiper-pagination {
+          .bookCardsSwiper .swiper-pagination {
             bottom: 0 !important;
           }
           .line-clamp-2 {
