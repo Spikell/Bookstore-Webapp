@@ -272,18 +272,9 @@ const Shop = () => {
   );
 
   return (
-    <div className="mt-20 py-8 px-4 lg:px-8 max-w-[1600px] mx-auto bg-gray-50/30 min-h-screen">
-      <Toaster
-        position="bottom-center"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-            borderRadius: '10px',
-          },
-        }}
-      />
+    <div className="bg-white min-h-screen w-full pt-28 pb-8 px-4 lg:px-8">
+      <div className="max-w-[1600px] mx-auto">
+
       
       {/* Header migrated to right column so it animates fully */}
 
@@ -491,15 +482,14 @@ const Shop = () => {
                 ? Array(10).fill().map((_, index) => <BookCardSkeleton key={index} />)
                 : sortedAndFilteredBooks.map((book) => (
                   <div key={book._id} className="bg-white rounded-none overflow-hidden hover:ring-2 ring-blue-500/50 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl cursor-pointer group" onClick={(e) => handleBookClick(book, e)}>
-                    <div className="relative aspect-[4/5] bg-gray-100 overflow-hidden flex items-center justify-center p-2">
+                    <div className="relative aspect-[4/5] bg-white overflow-hidden flex items-center justify-center shrink-0">
                       <img
                         src={book.imageURL}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-fill"
                         alt={book.bookTitle}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <button
-                        className={`cart-button absolute bottom-3 right-3 bg-white text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-full shadow-lg transition-all duration-300 z-10 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${addedToCart[book._id] ? 'bg-green-500 text-white translate-y-0 opacity-100' : ''}`}
+                        className={`cart-button absolute top-3 right-3 p-2.5 rounded-full shadow-lg transition-all duration-300 z-10 ${isInCart(book._id) ? 'opacity-100 translate-y-0 bg-green-500 text-white hover:bg-green-600 cursor-default' : 'translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 bg-white text-blue-600 hover:bg-blue-600 hover:text-white'}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           addToCart(book);
@@ -551,6 +541,7 @@ const Shop = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
