@@ -214,8 +214,8 @@ function Cart() {
   }, [cartItems, calculateSubtotal]);
 
   return (
-    <div className="mt-28 px-4 lg:px-8 xl:px-12 mb-12 max-w-screen-xl mx-auto">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="!bg-white min-h-screen w-full">
+    <div className="pt-28 px-4 lg:px-8 xl:px-12 mb-12 max-w-screen-xl mx-auto">
 
       {loading ? (
         <div className="flex justify-center items-center h-48">
@@ -250,14 +250,14 @@ function Cart() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-              <div className="p-3 bg-indigo-50 border-b border-gray-200 flex justify-between items-center px-5">
-                <h3 className="text-lg font-semibold text-gray-800">
+            <div className="!bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+              <div className="p-3 !bg-indigo-50 border-b border-gray-200 flex justify-between items-center px-5">
+                <h3 className="text-lg font-semibold !text-gray-800">
                   Cart Items ({cartItems.length})
                 </h3>
                 <button
                   onClick={clearCart}
-                  className="text-red-500 hover:text-red-700 flex items-center transition duration-200 bg-white py-1 px-2.5 rounded text-sm border border-red-200 hover:bg-red-50"
+                  className="text-red-500 hover:text-red-700 flex items-center transition duration-200 !bg-white py-1 px-2.5 rounded text-sm border border-red-200 hover:bg-red-50"
                 >
                   <FaTrash className="mr-1.5" size={12} /> Clear All
                 </button>
@@ -266,7 +266,7 @@ function Cart() {
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-gray-50 transition-colors duration-150"
+                    className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-gray-50 transition-colors duration-150 !bg-white"
                   >
                     <div className="w-16 h-24 flex-shrink-0 bg-gray-100 rounded overflow-hidden border border-gray-200">
                       <img
@@ -276,10 +276,10 @@ function Cart() {
                       />
                     </div>
                     <div className="flex-grow">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-0.5 leading-tight">
+                      <h4 className="text-lg font-semibold !text-gray-800 mb-0.5 leading-tight">
                         {item.bookTitle}
                       </h4>
-                      <p className="text-sm text-gray-600 mb-1 flex items-center">
+                      <p className="text-sm !text-gray-600 mb-1 flex items-center">
                         <FaUser className="mr-1.5 text-gray-400" size={12} />
                         <span className="truncate max-w-[200px]">{item.authorName}</span>
                       </p>
@@ -292,17 +292,17 @@ function Cart() {
                       <div className="flex items-center border border-gray-300 rounded overflow-hidden shadow-sm">
                         <button
                           onClick={() => decrementQuantity(item.id)}
-                          className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-200 hover:text-red-600 active:bg-gray-300 transition-colors"
+                          className="w-8 h-8 flex items-center justify-center !bg-gray-50 hover:bg-gray-200 hover:text-red-600 active:bg-gray-300 transition-colors !text-gray-700"
                           aria-label="Decrease quantity"
                         >
                           <FaMinus size={10} />
                         </button>
-                        <span className="w-8 flex items-center justify-center font-medium text-sm font-mono">
+                        <span className="w-8 flex items-center justify-center font-medium text-sm font-mono !text-gray-900">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => incrementQuantity(item.id)}
-                          className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-200 hover:text-green-600 active:bg-gray-300 transition-colors"
+                          className="w-8 h-8 flex items-center justify-center !bg-gray-50 hover:bg-gray-200 hover:text-green-600 active:bg-gray-300 transition-colors !text-gray-700"
                           aria-label="Increase quantity"
                         >
                           <FaPlus size={10} />
@@ -328,30 +328,30 @@ function Cart() {
           </div>
 
           <div className="lg:col-span-4">
-            <div className="bg-white rounded-lg shadow-sm p-5 sticky top-24 border border-gray-200 text-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center">
+            <div className="!bg-white rounded-lg shadow-sm p-5 sticky top-24 border border-gray-200 text-sm">
+              <h3 className="text-lg font-semibold !text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center">
                 <FaReceipt className="mr-2 text-blue-600" size={16} />
                 Order Summary
               </h3>
               <div className="space-y-3 mb-5">
-                <div className="flex justify-between items-center text-gray-600">
+                <div className="flex justify-between items-center !text-gray-600">
                   <span>Subtotal</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium !text-gray-800">
                     ${calculateSubtotal().toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-gray-600">
+                <div className="flex justify-between items-center !text-gray-600">
                   <span>Tax (10%)</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium !text-gray-800">
                     ${(calculateSubtotal() * 0.1).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-gray-600">
                   <span>Shipping</span>
-                  <span className="font-medium text-gray-800">$5.00</span>
+                  <span className="font-medium !text-gray-800">$5.00</span>
                 </div>
                 <div className="pt-3 mt-2 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-base font-semibold text-gray-800">
+                  <span className="text-base font-semibold !text-gray-800">
                     Total
                   </span>
                   <span className="text-xl font-bold text-blue-700">
@@ -375,6 +375,7 @@ function Cart() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
