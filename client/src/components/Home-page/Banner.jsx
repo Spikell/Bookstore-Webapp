@@ -83,94 +83,111 @@ const Banner = ({ onBookSelect }) => {
     localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
 
-    toast.success('Book added to cart!', {
-      position: 'bottom-center',
-    });
+    toast.success('Book added to cart!');
   };
 
   return (
     <div className="px-4 lg:px-24 bg-teal-100 flex items-center">
-      <div className="flex w-full flex-col md:flex-row justify-between items-start gap-12 py-40">
+      <div className="flex w-full flex-col md:flex-row justify-between items-center gap-12 py-40">
         {/* left side */}
-        <div className="flex flex-col mb-12  md:w-1/2 space-y-8">
-          <h2 className="text-4xl md:text-5xl font-bold leading-snug text-black">
-            Buy and Sell Your Books{" "}
-            <span className="text-blue-700">for the Best Price</span>
+        <div className="flex flex-col mb-12 md:w-1/2 space-y-8">
+          <h2 className="text-5xl md:text-6xl font-extrabold leading-[1.15] text-slate-900 tracking-tight">
+            Buy and Sell Books{" "}
+            <br className="hidden md:block"/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-teal-400">
+              for the Best Price
+            </span>
           </h2>
-          <p className="md:w-4/5 text-lg text-gray-500">
+          <p className="md:w-5/6 text-lg md:text-xl text-slate-600 font-medium leading-relaxed">
             Discover a vast collection of books at unbeatable prices. Whether
             you're looking to buy or sell, our platform offers the best deals
-            and a seamless experience. Join our community of book lovers today
-            and find your next great read.
+            and a seamless experience.
           </p>
-          <div className="flex items-center">
-            <input
-              type="search"
-              name="search"
-              id="search"
-              placeholder="Search for books"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
-              className="py-2 px-4 bg-white rounded-l-sm outline-none focus:ring-1 focus:ring-blue-400 focus:ring-inset 
-              focus:border-blue-400 border border-transparent focus:border-r-0 transition duration-300 ease-in-out placeholder-gray-400 text-gray-700"
-            />
-            <button
-              onClick={handleSearch}
-              className="py-2 px-4 bg-blue-600 text-white hover:bg-blue-800 transition 
-            duration-200 ease-in-out rounded-r-2xl border border-transparent focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:border-l-0 -ml-px"
-            >
-              Search
-            </button>
-          </div>
-
-          {/* Search results */}
-          {showResults && (
-            <div className="mt-8 flex flex-col space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800">
-                Search Results ({searchResults.length})
-              </h3>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {searchResults.map((book) => (
-                  <div
-                    key={book._id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
-                    onClick={() => onBookSelect(book)}
-                  >
-                    <div className="h-48 overflow-hidden" onClick={() => onBookSelect(book)}>
-                      <img
-                        src={book.imageURL}
-                        alt={book.bookTitle}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-3 flex-grow flex flex-col justify-between">
-                      <div onClick={() => onBookSelect(book)}>
-                        <h5 className="text-sm font-bold text-gray-900 line-clamp-2 mb-1">
-                          {book.bookTitle}
-                        </h5>
-                        <p className="text-xs text-gray-600 mb-1">
-                          By {book.authorName}
-                        </p>
-                        <p className="text-xs text-blue-600 mb-1">{book.category}</p>
-                      </div>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-sm font-semibold text-green-600">
-                          ${parseFloat(book.price).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          
+          {/* Search Bar */}
+          <div className="relative w-full md:w-5/6 pt-2 z-50">
+            <div className="relative flex items-center w-full h-16 rounded-full bg-white overflow-hidden border-2 border-slate-200 focus-within:border-slate-300 hover:border-slate-300 transition-all duration-300">
+              <input
+                type="search"
+                name="search"
+                id="search"
+                placeholder="Search for books by title or author..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                className="peer h-full w-full outline-none text-base text-slate-700 pl-6 pr-2 bg-transparent border-none focus:ring-0 placeholder-slate-400"
+              />
+              <button
+                onClick={handleSearch}
+                className="h-12 px-8 m-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-full shadow-md hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+              >
+                Search
+              </button>
             </div>
-          )}
+
+            {/* Search results popover */}
+            {showResults && (
+              <div className="absolute top-full left-0 w-full mt-4 bg-white rounded-xl shadow-2xl border border-slate-200 max-h-[60vh] overflow-hidden flex flex-col z-50">
+                <div className="p-3 border-b border-slate-100 bg-slate-50">
+                  <h3 className="text-sm font-semibold text-slate-600 flex items-center">
+                    Search Results ({searchResults.length})
+                  </h3>
+                </div>
+                
+                <div className="overflow-y-auto p-2 custom-scrollbar">
+                  {searchResults.length > 0 ? (
+                    <div className="flex flex-col space-y-1">
+                      {searchResults.map((book) => (
+                        <div
+                          key={book._id}
+                          className="bg-white rounded-lg hover:bg-slate-50 transition-colors duration-150 flex flex-row items-center p-2 cursor-pointer group"
+                          onClick={() => onBookSelect(book)}
+                        >
+                          <div className="w-12 h-16 overflow-hidden rounded flex-shrink-0 bg-slate-100 border border-slate-200">
+                            <img
+                              src={book.imageURL}
+                              alt={book.bookTitle}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="ml-4 flex-grow flex flex-col">
+                            <h5 className="text-sm font-semibold text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                              {book.bookTitle}
+                            </h5>
+                            <p className="text-xs text-slate-500 line-clamp-1">
+                              By {book.authorName}
+                            </p>
+                            <div className="flex justify-between items-end mt-1">
+                              <span className="text-[10px] font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                {book.category}
+                              </span>
+                              <span className="text-sm font-bold text-slate-900">
+                                ${parseFloat(book.price).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center flex flex-col items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-slate-500 text-sm font-medium">No books found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* right side */}
-        <div className="">
-          <BannerCard />
+        <div className="md:w-1/2 flex justify-center md:justify-end relative">
+          <div className="drop-shadow-2xl">
+            <BannerCard />
+          </div>
         </div>
       </div>
     </div>

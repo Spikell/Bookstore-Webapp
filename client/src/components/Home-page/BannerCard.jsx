@@ -8,15 +8,30 @@ import "swiper/css/effect-cards";
 import "../Home-page/BannerCard.css";
 
 // import required modules
-import { EffectCards } from "swiper/modules";
+import { EffectCards, Autoplay, Keyboard } from "swiper/modules";
+
+// Import book images
+import book1 from "../../assets/banner-books/book1.png";
+import book2 from "../../assets/banner-books/book2.png";
+import book3 from "../../assets/banner-books/book3.png";
+import book4 from "../../assets/banner-books/book4.png";
+import book5 from "../../assets/banner-books/book5.png";
+
 const BannerCard = () => {
   return (
-    <div className="banner">
+    <div className="banner z-10 relative">
       <Swiper
         effect={"cards"}
         grabCursor={true}
-        modules={[EffectCards]}
+        modules={[EffectCards, Autoplay, Keyboard]}
         className="mySwiper"
+        autoplay={{
+          delay: 3000,
+          disableOnInteraction: false,
+        }}
+        keyboard={{
+          enabled: true,
+        }}
         onClick={(swiper) => {
           if (swiper.isEnd) {
             swiper.slideTo(0);
@@ -24,13 +39,13 @@ const BannerCard = () => {
             swiper.slideNext();
           }
         }}
-        loop={true}
+        rewind={true}
       >
-        <SwiperSlide></SwiperSlide>
-        <SwiperSlide></SwiperSlide>
-        <SwiperSlide></SwiperSlide>
-        <SwiperSlide></SwiperSlide>
-        <SwiperSlide></SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${book1})` }}></SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${book2})` }}></SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${book3})` }}></SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${book4})` }}></SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${book5})` }}></SwiperSlide>
       </Swiper>
     </div>
   );

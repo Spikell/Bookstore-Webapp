@@ -1,34 +1,43 @@
+.banner {
+  width: 250px;
+  height: 360px;
+}
+
 .banner .swiper {
-  width: 240px;
-  height: 350px;
+  width: 100%;
+  height: 100%;
 }
 
 .banner .swiper-slide {
+  width: 100% !important;
+  height: 100% !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 18px;
+  border-radius: 12px;
   font-size: 22px;
   font-weight: bold;
   color: #fff;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 12px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  background-color: #f1f5f9;
 }
 
-.banner .swiper-slide:nth-child(1n) {
-  background-image: url('../../assets/banner-books/book1.png');
+/* Glassy shine effect overlay */
+.banner .swiper-slide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,0.1) 100%);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
-.banner .swiper-slide:nth-child(2n) {
-  background-image: url('../../assets/banner-books/book2.png');
-}
-
-.banner .swiper-slide:nth-child(3n) {
-  background-image: url('../../assets/banner-books/book3.png');
-}
-
-.banner .swiper-slide:nth-child(4n) {
-  background-image: url('../../assets/banner-books/book4.png');
-}
-
-.banner .swiper-slide:nth-child(5n) {
-  background-image: url('../../assets/banner-books/book5.png');
-}
+/* Inline backgrounds handle the book images now to ensure correct Swiping loops */
