@@ -35,9 +35,8 @@ const BookCards = ({ headline, books, onBookSelect }) => {
       
       let updatedCart;
       if (existingItemIndex !== -1) {
-        updatedCart = existingCart.map((item, index) => 
-          index === existingItemIndex ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        toast.success('Book is already in the cart!');
+        return;
       } else {
         updatedCart = [
           ...existingCart,
@@ -56,9 +55,7 @@ const BookCards = ({ headline, books, onBookSelect }) => {
       localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));
       window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: updatedCart, userId: user.uid } }));
       
-      toast.success('Book added to cart!', {
-        position: 'bottom-center',
-      });
+      toast.success('Book added to cart!');
 
       setCartItems(updatedCart);
       setRecentlyAdded(prev => ({ ...prev, [book._id]: true }));

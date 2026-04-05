@@ -18,7 +18,8 @@ const SingleBook = ({ book, onClose, addToCart }) => {
     const price = typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0;
     
     if (existingItemIndex !== -1) {
-      existingCart[existingItemIndex].quantity += 1;
+      toast.success('Book is already in the cart!');
+      return;
     } else {
       existingCart.push({
         id: book._id,
@@ -34,9 +35,7 @@ const SingleBook = ({ book, onClose, addToCart }) => {
     localStorage.setItem(`cart_${user.uid}`, JSON.stringify(existingCart));
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart, userId: user.uid } }));
     
-    toast.success('Book added to cart!', {
-      position: 'bottom-center',
-    });
+    toast.success('Book added to cart!');
   };
 
   return (

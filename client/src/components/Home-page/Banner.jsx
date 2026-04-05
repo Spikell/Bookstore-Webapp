@@ -66,7 +66,8 @@ const Banner = ({ onBookSelect }) => {
     });
 
     if (existingItemIndex !== -1) {
-      existingCart[existingItemIndex].quantity += 1;
+      toast.success('Book is already in the cart!');
+      return;
     } else {
       existingCart.push({
         id: book._id,
