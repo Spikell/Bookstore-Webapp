@@ -115,6 +115,12 @@ const Shop = () => {
         category: book.category
       };
 
+      const existingCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+      if (existingCart.some(item => item.id === book._id)) {
+        toast.success('Book is already in the cart!');
+        return;
+      }
+
       queueUpdate(book._id, newItem);
 
       toast.success('Book added to cart!');
@@ -194,10 +200,10 @@ const Shop = () => {
     }
 
     if (minPrice !== '') {
-      result = result.filter(book => book.price >= Number(minPrice));
+      result = result.filter(book => Number(book.price) >= Number(minPrice));
     }
     if (maxPrice !== '') {
-      result = result.filter(book => book.price <= Number(maxPrice));
+      result = result.filter(book => Number(book.price) <= Number(maxPrice));
     }
 
     const sorted = [...result].sort((a, b) => {
@@ -205,10 +211,14 @@ const Shop = () => {
       const aValue = a[sortConfig.field];
       const bValue = b[sortConfig.field];
 
-      if (typeof aValue === 'string') {
+      if (sortConfig.field === 'price') {
+        const valueA = typeof aValue === 'number' ? aValue : parseFloat(aValue) || 0;
+        const valueB = typeof bValue === 'number' ? bValue : parseFloat(bValue) || 0;
+        comparison = valueA - valueB;
+      } else if (typeof aValue === 'string') {
         comparison = aValue.localeCompare(bValue);
       } else {
-        comparison = aValue - bValue;
+        comparison = (aValue || 0) - (bValue || 0);
       }
 
       return sortConfig.direction === 'desc' ? -comparison : comparison;
@@ -399,7 +409,8 @@ const Shop = () => {
                 value={minPrice} 
                 onChange={e => setMinPrice(e.target.value)} 
                 placeholder="Min" 
-                className="w-full p-3 text-base text-gray-900 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500" 
+                min="0"
+                className="w-full p-3 text-base text-gray-900 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 [color-scheme:light]" 
               />
               <span className="text-gray-400 font-bold">-</span>
               <input 
@@ -407,7 +418,8 @@ const Shop = () => {
                 value={maxPrice} 
                 onChange={e => setMaxPrice(e.target.value)} 
                 placeholder="Max" 
-                className="w-full p-3 text-base text-gray-900 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500" 
+                min="0"
+                className="w-full p-3 text-base text-gray-900 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 [color-scheme:light]" 
               />
             </div>
           </div>
