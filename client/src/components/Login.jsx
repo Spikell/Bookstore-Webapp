@@ -19,7 +19,6 @@ const Login = () => {
     const form = event.target;
     const email = form.email.value;
     const password = form.password.value;
-
     toast.dismiss(); // Dismiss any existing toasts
     login(email, password)
       .then((userCredential) => {
@@ -28,7 +27,7 @@ const Login = () => {
         setTimeout(() => {
           navigate(from, { replace: true });
         }, 1000); // Delay navigation by 1 second
-      })
+      }) 
       .catch((error) => {
         setError(error.message);
         if (error.code === "auth/user-not-found") {
