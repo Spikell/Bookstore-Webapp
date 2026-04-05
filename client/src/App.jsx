@@ -34,7 +34,7 @@ function App() {
       <CartDB />
       <NextUIProvider>
         <Toaster
-          position="top-center"
+          position="bottom-center"
           reverseOrder={false}
           toastOptions={{
             style: {

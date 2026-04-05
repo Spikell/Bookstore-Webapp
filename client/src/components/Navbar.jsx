@@ -143,8 +143,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 w-full transition-all duration-300 ease-in-out z-50 ${isSticky ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3" : "bg-transparent py-5"}`}>
-        <Toaster position="top-center" reverseOrder={false} />
+      <header className={`fixed top-0 left-0 right-0 w-full transition-all duration-300 ease-in-out z-50 ${isSticky ? "!bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3" : location.pathname === "/" ? "bg-teal-100 py-5" : "!bg-white py-5"}`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           
