@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 
 function About() {
   return (
-    <div className="mt-28 py-8 px-4 lg:px-24 max-w-5xl mx-auto">
+    <div className="bg-white min-h-screen w-full pt-28 pb-8">
+      <div className="px-4 lg:px-24 max-w-5xl mx-auto">
       <h2 className="text-4xl font-bold text-center mb-6 text-blue-700 flex items-center justify-center">
         About Our Bookstore
       </h2>
@@ -121,6 +122,7 @@ function About() {
             <p className="text-gray-700">123 Book Street, Reading City</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
