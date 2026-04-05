@@ -150,15 +150,15 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="text-2xl font-bold text-blue-700 flex items-center gap-2 transition-transform duration-300 hover:scale-[1.02] group"
+            className="text-2xl font-bold text-blue-700 flex items-center gap-2"
           >
-            <img src={bookhavenLogo} alt="BookHaven Logo" className="h-10 w-10 group-hover:-rotate-12 transition-transform duration-300" />
+            <img src={bookhavenLogo} alt="BookHaven Logo" className="h-10 w-10" />
             BookHaven
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center justify-center">
-            <ul className={`flex items-center p-1.5 space-x-1 rounded-full transition-all duration-300 ${isSticky ? 'bg-slate-100/80 shadow-inner' : 'bg-white/60 backdrop-blur-md shadow-sm border border-slate-200/50'}`}>
+            <ul className={`flex items-center p-1.5 space-x-1 rounded-full transition-all duration-300 border-2 ${isSticky ? 'bg-white shadow-md border-slate-900/30' : 'bg-white shadow-lg shadow-slate-200/50 border-slate-900/30'}`}>
               {navItems.map(({ link, path }) => (
                 <li key={link}>
                   <NavLink
@@ -167,7 +167,7 @@ const Navbar = () => {
                   >
                     {({ isActive }) => (
                       <>
-                        {isActive && <div className="absolute inset-0 bg-slate-900 rounded-full" />}
+                        {isActive && <div className="absolute inset-0 bg-slate-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />}
                         {!isActive && <div className="absolute inset-0 bg-slate-200/50 shadow-inner scale-0 rounded-full group-hover:scale-100 transition-transform duration-200 ease-out origin-center" />}
                         <span className="relative z-10 flex items-center gap-2">
                           <span>{link}</span>
@@ -197,7 +197,7 @@ const Navbar = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={toggleDropdown}
-                  className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-slate-200 shadow-sm text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-md transition-all duration-300"
+                  className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white shadow-lg shadow-slate-200/50 border-2 border-slate-900/30 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-md transition-all duration-300"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white flex items-center justify-center text-sm shadow-inner ring-2 ring-white/60">
                     {user.email.charAt(0).toUpperCase()}
