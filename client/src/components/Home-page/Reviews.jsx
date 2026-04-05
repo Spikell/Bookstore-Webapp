@@ -75,9 +75,9 @@ const Reviews = () => {
   ];
 
   return (
-    <div className="py-16 bg-gray-50">
+    <div className="py-12 bg-gray-50">
       <div className="container mx-auto px-4 lg:px-24">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl font-extrabold mb-4 relative">
             <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">What Our Customers Say</span>
             <div className="w-32 h-1 bg-gradient-to-r from-amber-500 to-orange-600 mx-auto mt-3"></div>

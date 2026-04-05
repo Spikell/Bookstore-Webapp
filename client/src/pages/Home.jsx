@@ -30,13 +30,15 @@ const Home = () => {
   }, [handleCloseBook]);
 
   return (
-    <div>
+    <div className="bg-white">
       <Banner onBookSelect={handleBookSelect} />
-      <BestSellingBooks onBookSelect={handleBookSelect} />
-      <FavBook/>
-      <PromoBanner/>
-      <OtherBooks onBookSelect={handleBookSelect} /> 
-      <Reviews/>
+      <div className="flex flex-col space-y-16 lg:space-y-20 pt-16 lg:pt-20 pb-20">
+        <BestSellingBooks onBookSelect={handleBookSelect} />
+        <FavBook/>
+        <PromoBanner/>
+        <OtherBooks onBookSelect={handleBookSelect} /> 
+        <Reviews/>
+      </div>
       {selectedBook && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"

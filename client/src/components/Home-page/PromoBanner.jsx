@@ -4,7 +4,7 @@ import PromoImg from '../../assets/PromoImage.png'
 
 const PromoBanner = () => {
   return (
-    <div className='mt-16 py-12 bg-teal-200 px-4 lg:px-24' >
+    <div className='py-12 bg-teal-200 px-4 lg:px-24' >
         <div className='flex flex-col md:flex-row justify-between items-center gap-12'>
             <div className='md:w-1/2'>
                 <h2 className='text-4xl font-extrabold mb-6 leading-snug relative'>
